@@ -36,9 +36,6 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 	// 友链
 	links.push(LinkPresets.Friends);
 
-	// 留言板
-	links.push(LinkPresets.Guestbook);
-
 	// 我的及其子菜单
 	links.push({
 		name: "我的",
@@ -46,7 +43,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		icon: "material-symbols:person",
 		children: [
 			// 相册
-			LinkPresets.Gallery,
+			// LinkPresets.Gallery,
 
 			// 追番
 			LinkPresets.Anime,
@@ -55,6 +52,22 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 			LinkPresets.Bangumi,
 		],
 	});
+	// 摄影菜单
+	links.push({
+		name: "摄影",
+		url: "#",
+		icon: "material-symbols:photo-library",
+		children: [
+			// 风景
+			LinkPresets.Gallery,
+
+			// 人像
+			LinkPresets.Gallery,
+		],
+	});
+	
+	// 留言板
+	links.push(LinkPresets.Guestbook);
 
 	// 关于及其子菜单
 	links.push({
@@ -175,7 +188,13 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		pageKey: "bangumi",
 	},
 	Gallery: {
-		name: "相册",
+		name: "风景",
+		url: "/gallery/",
+		icon: "material-symbols:photo-library",
+		pageKey: "gallery",
+	},
+	Gallery: {
+		name: "人像",
 		url: "/gallery/",
 		icon: "material-symbols:photo-library",
 		pageKey: "gallery",
