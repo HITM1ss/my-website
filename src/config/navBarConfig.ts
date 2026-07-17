@@ -62,7 +62,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 			LinkPresets.Gallery,
 
 			// 人像
-			LinkPresets.Gallery,
+			LinkPresets.Gallery2,
 		],
 	});
 	
@@ -193,7 +193,7 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		icon: "material-symbols:photo-library",
 		pageKey: "gallery",
 	},
-	Gallery: {
+	Gallery2: {
 		name: "人像",
 		url: "/gallery/",
 		icon: "material-symbols:photo-library",

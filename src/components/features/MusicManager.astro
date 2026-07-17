@@ -102,6 +102,7 @@ const managerConfigStr = JSON.stringify({
 
     // ── State ────────────────────────────────────────────────
     var loadVersion = 0; // incremented on each loadTrack to discard stale play() results
+    var lastHandledErrorVersion = -1;
     var state = {
         playlist: [],
         currentIndex: 0,
@@ -115,7 +116,9 @@ const managerConfigStr = JSON.stringify({
         currentLrcIndex: -1,
         initialized: false,
         initializing: false,
-        error: null
+        error: null,
+        failedTrackIndexes: {},
+        playAfterInteraction: false
     };
 
     // Map config playMode string to number
@@ -201,8 +204,9 @@ const managerConfigStr = JSON.stringify({
     }
 
     // ── Track loading ────────────────────────────────────────
-    function loadTrack(index, autoPlay) {
+    function loadTrack(index, autoPlay, preserveFailedTracks) {
         if (index < 0 || index >= state.playlist.length) return;
+        if (!preserveFailedTracks) state.failedTrackIndexes = {};
         state.currentIndex = index;
         var track = state.playlist[index];
         var ver = ++loadVersion;
@@ -243,7 +247,26 @@ const managerConfigStr = JSON.stringify({
         }
     }
 
-    function playNext(auto) {
+    // Start music after the visitor's first interaction. Browsers block
+    // unprompted audio, so this keeps playback within a user gesture.
+    function startAfterInteraction(event) {
+        if (event.target && event.target.closest && event.target.closest('.music-player-widget')) return;
+
+        document.removeEventListener('pointerdown', startAfterInteraction, true);
+        document.removeEventListener('keydown', startAfterInteraction, true);
+
+        if (!state.initialized || state.playlist.length === 0) {
+            state.playAfterInteraction = true;
+            return;
+        }
+
+        if (audio.paused) togglePlay();
+    }
+
+    document.addEventListener('pointerdown', startAfterInteraction, true);
+    document.addEventListener('keydown', startAfterInteraction, true);
+
+    function playNext(auto, recovering) {
         if (state.playMode === 1 && auto) {
             audio.currentTime = 0;
             audio.play();
@@ -255,7 +278,7 @@ const managerConfigStr = JSON.stringify({
         } else {
             nextIndex = (state.currentIndex + 1) % state.playlist.length;
         }
-        loadTrack(nextIndex, true);
+        loadTrack(nextIndex, true, recovering);
     }
 
     function playPrev() {
@@ -345,8 +368,24 @@ const managerConfigStr = JSON.stringify({
     });
 
     audio.addEventListener('error', function () {
+        if (lastHandledErrorVersion === loadVersion) return;
+        lastHandledErrorVersion = loadVersion;
+
         state.error = 'Audio playback error';
         emit('fm:error', { message: state.error });
+
+        state.isPlaying = false;
+        emit('fm:play-state', { isPlaying: false });
+
+        state.failedTrackIndexes[state.currentIndex] = true;
+        var nextIndex = state.currentIndex;
+        for (var i = 0; i < state.playlist.length; i++) {
+            nextIndex = (nextIndex + 1) % state.playlist.length;
+            if (!state.failedTrackIndexes[nextIndex]) {
+                loadTrack(nextIndex, true, true);
+                return;
+            }
+        }
     });
 
     // ── Init (idempotent) ────────────────────────────────────
@@ -380,6 +419,8 @@ const managerConfigStr = JSON.stringify({
                 });
 
                 loadTrack(startIndex, false);
+
+                if (state.playAfterInteraction) togglePlay();
             } else {
                 state.initialized = true;
                 emit('fm:init', {
