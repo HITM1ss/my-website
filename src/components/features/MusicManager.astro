@@ -102,6 +102,7 @@ const managerConfigStr = JSON.stringify({
 
     // ── State ────────────────────────────────────────────────
     var loadVersion = 0; // incremented on each loadTrack to discard stale play() results
+    var playRequestVersion = 0; // incremented on each play request to discard stale results
     var lastHandledErrorVersion = -1;
     var state = {
         playlist: [],
@@ -203,6 +204,25 @@ const managerConfigStr = JSON.stringify({
         }
     }
 
+    function updatePlayingState(isPlaying) {
+        if (state.isPlaying === isPlaying) return;
+        state.isPlaying = isPlaying;
+        emit('fm:play-state', { isPlaying: isPlaying });
+    }
+
+    function startPlayback() {
+        var version = ++playRequestVersion;
+        audio.play().then(function () {
+            if (version !== playRequestVersion) return;
+            updatePlayingState(true);
+        }).catch(function (e) {
+            if (version !== playRequestVersion) return;
+            if (e.name === 'AbortError') return;
+            updatePlayingState(false);
+            console.warn('Playback start failed:', e);
+        });
+    }
+
     // ── Track loading ────────────────────────────────────────
     function loadTrack(index, autoPlay, preserveFailedTracks) {
         if (index < 0 || index >= state.playlist.length) return;
@@ -218,32 +238,23 @@ const managerConfigStr = JSON.stringify({
         emit('fm:track', { index: index, track: track, autoPlay: !!autoPlay });
 
         if (autoPlay) {
-            audio.play().then(function () {
-                if (ver !== loadVersion) return; // stale, discard
-                state.isPlaying = true;
-                emit('fm:play-state', { isPlaying: true });
-            }).catch(function (e) {
-                if (ver !== loadVersion) return; // stale, discard
-                if (e.name === 'AbortError') return; // interrupted by new load
-                console.warn('Autoplay blocked:', e);
-            });
+            startPlayback();
+            if (ver !== loadVersion) {
+                updatePlayingState(false);
+            }
         } else {
-            state.isPlaying = false;
-            emit('fm:play-state', { isPlaying: false });
+            updatePlayingState(false);
         }
     }
 
     // ── Playback controls ────────────────────────────────────
     function togglePlay() {
         if (audio.paused) {
-            audio.play().then(function () {
-                state.isPlaying = true;
-                emit('fm:play-state', { isPlaying: true });
-            });
+            startPlayback();
         } else {
+            playRequestVersion++;
             audio.pause();
-            state.isPlaying = false;
-            emit('fm:play-state', { isPlaying: false });
+            updatePlayingState(false);
         }
     }
 
@@ -269,7 +280,7 @@ const managerConfigStr = JSON.stringify({
     function playNext(auto, recovering) {
         if (state.playMode === 1 && auto) {
             audio.currentTime = 0;
-            audio.play();
+            startPlayback();
             return;
         }
         var nextIndex;
@@ -335,6 +346,14 @@ const managerConfigStr = JSON.stringify({
     }
 
     // ── Audio events → broadcast ─────────────────────────────
+    audio.addEventListener('play', function () {
+        updatePlayingState(true);
+    });
+
+    audio.addEventListener('pause', function () {
+        updatePlayingState(false);
+    });
+
     audio.addEventListener('timeupdate', function () {
         if (isNaN(audio.duration)) return;
         var ct = audio.currentTime;
@@ -374,8 +393,7 @@ const managerConfigStr = JSON.stringify({
         state.error = 'Audio playback error';
         emit('fm:error', { message: state.error });
 
-        state.isPlaying = false;
-        emit('fm:play-state', { isPlaying: false });
+        updatePlayingState(false);
 
         state.failedTrackIndexes[state.currentIndex] = true;
         var nextIndex = state.currentIndex;
