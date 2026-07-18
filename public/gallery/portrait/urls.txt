@@ -1,0 +1,17 @@
+# 每行一个图片 URL，支持 jpg/png/webp/avif/gif后缀
+# # 号开头的行为注释，空行会被忽略
+# 示例：
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_0589.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_1475-%E7%BC%96%E8%BE%91.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_3725.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_3788.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_3789.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_4912-%E7%BC%96%E8%BE%91.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_5566.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_5575.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_6155.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_6290.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_7144-%E7%BC%96%E8%BE%91.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_0882-%E7%BC%96%E8%BE%91.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_0789-%E7%BC%96%E8%BE%91.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_0589.avif

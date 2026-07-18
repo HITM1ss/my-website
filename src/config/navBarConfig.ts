@@ -53,18 +53,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		],
 	});
 	// 摄影菜单
-	links.push({
-		name: "摄影",
-		url: "#",
-		icon: "material-symbols:photo-library",
-		children: [
-			// 风景
-			LinkPresets.Gallery,
-
-			// 人像
-			LinkPresets.Gallery2,
-		],
-	});
+	links.push(LinkPresets.Gallery);
 	
 	// 留言板
 	links.push(LinkPresets.Guestbook);
@@ -188,13 +177,7 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		pageKey: "bangumi",
 	},
 	Gallery: {
-		name: "风景",
-		url: "/gallery/",
-		icon: "material-symbols:photo-library",
-		pageKey: "gallery",
-	},
-	Gallery2: {
-		name: "人像",
+		name: "摄影",
 		url: "/gallery/",
 		icon: "material-symbols:photo-library",
 		pageKey: "gallery",
