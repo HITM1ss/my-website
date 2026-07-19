@@ -1,7 +1,12 @@
 # 每行一个图片 URL，支持 jpg/png/webp/avif/gif后缀
 # # 号开头的行为注释，空行会被忽略
 # 示例：
-https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_0589.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/3bcd1912c2203109ccc35b48aeb9730a.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/9f970f19528faf73165f5758a429a3c9.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/485de30dae3128759087fae34448d707.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/40660d71d18ca0f64faa33966d1edbfa.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_3784.avif
+https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_4895-%E7%BC%96%E8%BE%91.avif
 https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_1475-%E7%BC%96%E8%BE%91.avif
 https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_3725.avif
 https://cdn.jsdelivr.net/gh/HITM1ss/imgebed@master/img/DSC_3788.avif
