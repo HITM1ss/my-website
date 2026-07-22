@@ -1,0 +1,158 @@
+---
+import { getCollection, render } from "astro:content";
+import { Icon } from "astro-icon/components";
+import ImageWrapper from "@/components/common/ImageWrapper.astro";
+import { dynamicConfig, profileConfig, siteConfig } from "@/config";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import { formatDateI18nWithTime } from "@/utils/date-utils";
+import "@/styles/dynamic.css";
+
+if (!siteConfig.pages.dynamic) {
+	return Astro.redirect("/404/");
+}
+
+const dynamics = (await getCollection("dynamic")).sort(
+	(a, b) => b.data.published.getTime() - a.data.published.getTime(),
+);
+const years = [...new Set(dynamics.map((entry) => entry.data.published.getFullYear()))];
+const itemsPerPage = Math.max(1, Math.floor(dynamicConfig.itemsPerPage));
+---
+
+<MainGridLayout title="动态" description="随手记下此刻的想法与日常。">
+	<section class="dynamic-page" aria-labelledby="dynamic-page-title">
+		<header class="dynamic-page-header card-base">
+			<div class="dynamic-page-heading">
+				<div class="dynamic-page-icon" aria-hidden="true">
+					<Icon is:inline name="material-symbols:forum-rounded" />
+				</div>
+				<div>
+					<h1 id="dynamic-page-title">动态</h1>
+					<p>随手记下此刻的想法与日常。</p>
+				</div>
+			</div>
+			<span class="dynamic-count" aria-label={`${dynamics.length} 条动态`}>
+				<Icon is:inline name="material-symbols:dynamic-feed-rounded" />
+				<strong>{dynamics.length}</strong>
+				<span>动态</span>
+			</span>
+			{dynamics.length > 0 && (
+				<label class="dynamic-year-select">
+					<Icon is:inline name="material-symbols:calendar-month-rounded" />
+					<select data-dynamic-year aria-label="按年份筛选动态">
+						<option value="all">全部年份</option>
+						{years.map((year) => <option value={year}>{year}</option>)}
+					</select>
+				</label>
+			)}
+		</header>
+
+		{
+			dynamics.length === 0 ? (
+				<div class="dynamic-empty card-base">还没有发布动态。</div>
+			) : (
+				<div class="dynamic-feed" data-dynamic-feed data-items-per-page={itemsPerPage}>
+					{
+						dynamics.map(async (entry) => {
+							const { Content } = await render(entry);
+							const anchorId = `dynamic-${entry.id.replace(/\.(md|mdx)$/i, "").replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+							return (
+								<article id={anchorId} class="dynamic-entry card-base" data-dynamic-entry data-year={entry.data.published.getFullYear()} aria-labelledby={`${anchorId}-author`}>
+									<header class="dynamic-entry-header">
+										<a href="/about/" class="dynamic-avatar" aria-label={`查看 ${profileConfig.name} 的资料`}>
+											<ImageWrapper src={profileConfig.avatar || ""} alt={profileConfig.name} widths={[96]} sizes="48px" />
+										</a>
+										<div class="dynamic-identity">
+											<strong id={`${anchorId}-author`}>{profileConfig.name}</strong>
+											<time datetime={entry.data.published.toISOString()}>{formatDateI18nWithTime(entry.data.published)}</time>
+										</div>
+										<a class="dynamic-permalink btn-plain" href={`#${anchorId}`} aria-label="此动态的固定链接" title="此动态的固定链接">
+											<Icon is:inline name="material-symbols:link-rounded" />
+										</a>
+									</header>
+									<div class="dynamic-content custom-md">
+										<Content />
+									</div>
+								</article>
+							);
+						})
+					}
+				</div>
+				<div class="dynamic-pagination" data-dynamic-pagination aria-label="动态分页"></div>
+			)
+		}
+	</section>
+</MainGridLayout>
+
+<script>
+	const feed = document.querySelector<HTMLElement>("[data-dynamic-feed]");
+	const yearSelect = document.querySelector<HTMLSelectElement>("[data-dynamic-year]");
+	const pagination = document.querySelector<HTMLElement>("[data-dynamic-pagination]");
+
+	if (feed && pagination) {
+		const entries = Array.from(
+			feed.querySelectorAll<HTMLElement>("[data-dynamic-entry]"),
+		);
+		const itemsPerPage = Number(feed.dataset.itemsPerPage) || 10;
+
+		const render = () => {
+			const url = new URL(window.location.href);
+			const selectedYear = yearSelect?.value || url.searchParams.get("year") || "all";
+			const filtered = entries.filter(
+				(entry) => selectedYear === "all" || entry.dataset.year === selectedYear,
+			);
+			const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+			const requestedPage = Number(url.searchParams.get("page")) || 1;
+			const currentPage = Math.min(Math.max(requestedPage, 1), totalPages);
+
+			entries.forEach((entry) => {
+				const index = filtered.indexOf(entry);
+				entry.hidden = index < 0 || index < (currentPage - 1) * itemsPerPage || index >= currentPage * itemsPerPage;
+			});
+
+			if (selectedYear === "all") url.searchParams.delete("year");
+			else url.searchParams.set("year", selectedYear);
+			if (currentPage === 1) url.searchParams.delete("page");
+			else url.searchParams.set("page", String(currentPage));
+			history.replaceState(history.state, "", url);
+
+			pagination.replaceChildren();
+			if (totalPages <= 1) return;
+			const createButton = (label: string, page: number, disabled = false) => {
+				const button = document.createElement("button");
+				button.type = "button";
+				button.className = "btn-card dynamic-page-button";
+				button.textContent = label;
+				button.disabled = disabled;
+				button.addEventListener("click", () => {
+					const nextUrl = new URL(window.location.href);
+					nextUrl.searchParams.set("page", String(page));
+					history.pushState(history.state, "", nextUrl);
+					render();
+					feed.scrollIntoView({ behavior: "smooth", block: "start" });
+				});
+				return button;
+			};
+
+			pagination.append(createButton("上一页", currentPage - 1, currentPage === 1));
+			for (let page = 1; page <= totalPages; page++) {
+				const button = createButton(String(page), page, page === currentPage);
+				if (page === currentPage) button.setAttribute("aria-current", "page");
+				pagination.append(button);
+			}
+			pagination.append(createButton("下一页", currentPage + 1, currentPage === totalPages));
+		};
+
+		if (yearSelect) {
+			yearSelect.value = new URL(window.location.href).searchParams.get("year") || "all";
+			yearSelect.addEventListener("change", () => {
+				const url = new URL(window.location.href);
+				url.searchParams.delete("page");
+				history.pushState(history.state, "", url);
+				render();
+			});
+		}
+
+		window.addEventListener("popstate", render);
+		render();
+	}
+</script>
