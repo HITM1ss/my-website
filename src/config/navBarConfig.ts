@@ -33,9 +33,6 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		],
 	});
 
-	// 友链
-	links.push(LinkPresets.Friends);
-
 	// 动态
 	links.push(LinkPresets.Dynamic);
 
@@ -54,6 +51,13 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 	// 留言板
 	links.push(LinkPresets.Guestbook);
 
+	// 应用
+	links.push({
+		name: "应用",
+		url: "/app/",
+		icon: "material-symbols:apps",
+	});
+
 	// 关于及其子菜单
 	links.push({
 		name: "关于",
@@ -65,6 +69,9 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 
 			// 关于页面
 			LinkPresets.About,
+
+			// 友链
+			LinkPresets.Friends,
 		],
 	});
 
