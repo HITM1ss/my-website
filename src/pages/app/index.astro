@@ -1,0 +1,54 @@
+---
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import { Icon } from "astro-icon/components";
+import { appConfig } from "@/config";
+
+const title = "应用";
+const description = "这里展示当前可用的应用，点击卡片即可打开。";
+
+const apps = appConfig.filter((app) => app.enabled !== false);
+---
+
+<MainGridLayout title={title} description={description}>
+  <section class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+    {apps.map((app) => (
+      <a
+        href={app.url}
+        class="group card-base flex flex-col justify-between overflow-hidden rounded-[1.5rem] border border-(--line-divider) bg-(--card-bg) shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+      >
+        {app.image && (
+          <div class="relative overflow-hidden bg-neutral-100 dark:bg-neutral-950">
+            <img
+              src={app.image}
+              alt={app.name}
+              class="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+        )}
+        <div class="flex flex-col justify-between p-6">
+          <div>
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <div class="flex items-center gap-3">
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-(--primary) text-white shadow-md">
+                  <Icon is:inline name={app.icon} class="text-2xl" />
+                </div>
+                <div>
+                  <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">{app.name}</h2>
+                  <p class="text-sm text-neutral-500 dark:text-neutral-400">{app.tags?.join(" · ")}</p>
+                </div>
+              </div>
+              <div class="rounded-full border border-(--primary) px-3 py-1 text-sm font-medium text-(--primary)">进入</div>
+            </div>
+
+            <p class="text-base leading-relaxed text-neutral-600 dark:text-neutral-400">{app.description}</p>
+          </div>
+
+          <div class="mt-6 flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
+            <Icon is:inline name="material-symbols:open-in-new" class="text-lg" />
+            <span>在当前页面中打开应用</span>
+          </div>
+        </div>
+      </a>
+    ))}
+  </section>
+</MainGridLayout>

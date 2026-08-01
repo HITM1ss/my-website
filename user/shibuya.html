@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>渋谷スクランブル交差点 | Shibuya Scramble Crossing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: #000; 
+            overflow: hidden; 
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        canvas { display: block; }
+        #overlay {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            color: #fff;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0.85;
+        }
+        #overlay h1 {
+            font-size: 2.2rem;
+            font-weight: 300;
+            letter-spacing: 0.06em;
+            margin: 0;
+            text-shadow: 0 0 20px rgba(255,100,200,0.6), 0 0 40px rgba(100,200,255,0.3);
+        }
+        #overlay p {
+            font-size: 0.85rem;
+            opacity: 0.55;
+            margin: 4px 0 0 0;
+            letter-spacing: 0.08em;
+        }
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 1.1rem;
+            z-index: 100;
+            transition: opacity 0.4s;
+            letter-spacing: 0.1em;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="c"></canvas>
+    <div id="loading">Loading Shibuya...</div>
+    <div id="overlay">
+        <h1>渋谷スクランブル交差点</h1>
+        <p>Shibuya Scramble Crossing · Tokyo</p>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // ==================== SCENE SETUP ====================
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x0a0a20, 0.00022);
+    scene.background = new THREE.Color(0x07071a);
+
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.5, 200);
+    camera.position.set(-20, 22, -18);
+    camera.lookAt(0, 0, 5);
+
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.35;
+
+    // ==================== CONTROLS ====================
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 0, 5);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.25;
+    controls.minPolarAngle = 0.2;
+    controls.maxPolarAngle = Math.PI / 2.2;
+    controls.minDistance = 12;
+    controls.maxDistance = 55;
+    controls.update();
+
+    // ==================== LIGHTING ====================
+    const ambient = new THREE.AmbientLight(0x1a1a3a, 0.5);
+    scene.add(ambient);
+
+    const moonLight = new THREE.DirectionalLight(0x4466aa, 0.7);
+    moonLight.position.set(30, 50, -20);
+    moonLight.castShadow = true;
+    moonLight.shadow.mapSize.width = 2048;
+    moonLight.shadow.mapSize.height = 2048;
+    moonLight.shadow.camera.near = 0.5;
+    moonLight.shadow.camera.far = 150;
+    moonLight.shadow.camera.left = -50;
+    moonLight.shadow.camera.right = 50;
+    moonLight.shadow.camera.top = 50;
+    moonLight.shadow.camera.bottom = -50;
+    moonLight.shadow.bias = -0.00015;
+    scene.add(moonLight);
+
+    // Neon point lights registry
+    const neonLights = [];
+    function addNeonLight(x, y, z, color, intensity = 30, distance = 25) {
+        const light = new THREE.PointLight(color, intensity, distance);
+        light.position.set(x, y, z);
+        scene.add(light);
+        neonLights.push({ light, baseIntensity: intensity });
+        return light;
+    }
+
+    // ==================== TEXTURE HELPERS ====================
+    function createWindowTexture(rows, cols, litColor = '#ffcc88', facadeColor = '#1a1a2e', litRatio = 0.7) {
+        const size = 512;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        
+        ctx.fillStyle = facadeColor;
+        ctx.fillRect(0, 0, size, size);
+        
+        const cellW = size / cols;
+        const cellH = size / rows;
+        const margin = 0.15;
+        
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                if (Math.random() < litRatio) {
+                    const brightness = 0.4 + Math.random() * 0.6;
+                    ctx.fillStyle = litColor;
+                    ctx.globalAlpha = brightness;
+                    ctx.fillRect(
+                        c * cellW + cellW * margin,
+                        r * cellH + cellH * margin,
+                        cellW * (1 - 2 * margin),
+                        cellH * (1 - 2 * margin)
+                    );
+                }
+            }
+        }
+        ctx.globalAlpha = 1;
+        
+        // Ground floor: larger, brighter windows (storefronts)
+        const gfH = cellH * 1.6;
+        for (let c = 0; c < cols; c++) {
+            if (Math.random() < 0.9) {
+                ctx.fillStyle = '#ffffff';
+                ctx.globalAlpha = 0.85;
+                ctx.fillRect(c * cellW + cellW * 0.04, size - gfH, cellW * 0.92, gfH * 0.75);
+            }
+        }
+        ctx.globalAlpha = 1;
+        
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.wrapT = THREE.RepeatWrapping;
+        tex.colorSpace = THREE.SRGBColorSpace;
+        return tex;
+    }
+
+    function createScrambleTexture() {
+        const size = 2048;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        
+        // Asphalt base
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(0, 0, size, size);
+        
+        // Asphalt noise
+        for (let i = 0; i < 6000; i++) {
+            const x = Math.random() * size;
+            const y = Math.random() * size;
+            const gray = 20 + Math.random() * 12;
+            ctx.fillStyle = `rgb(${gray},${gray},${gray})`;
+            ctx.fillRect(x, y, 2 + Math.random() * 3, 2 + Math.random() * 3);
+        }
+        
+        const cx = size / 2;
+        const cy = size / 2;
+        const ch = 480; // crossing half-size in pixels
+        
+        // Sidewalks (slightly lighter)
+        ctx.fillStyle = '#2a2a2a';
+        ctx.fillRect(cx - ch - 60, cy - ch - 60, ch * 2 + 120, 60);  // north
+        ctx.fillRect(cx - ch - 60, cy + ch, ch * 2 + 120, 60);       // south
+        ctx.fillRect(cx + ch, cy - ch - 60, 60, ch * 2 + 120);       // east
+        ctx.fillRect(cx - ch - 60, cy - ch - 60, 60, ch * 2 + 120);  // west
+        
+        // Scramble crossing stripes
+        ctx.fillStyle = '#e8e8e8';
+        const sw = 13;  // stripe width
+        const sg = 19;  // stripe gap
+        
+        // NS stripes (horizontal rows in top-down view)
+        for (let y = cy - ch + sg; y < cy + ch; y += sw + sg) {
+            ctx.fillRect(cx - ch + 10, y, ch * 2 - 20, sw);
+        }
+        
+        // EW stripes (vertical columns in top-down view)
+        for (let x = cx - ch + sg; x < cx + ch; x += sw + sg) {
+            ctx.fillRect(x, cy - ch + 10, sw, ch * 2 - 20);
+        }
+        
+        // Roads
+        ctx.fillStyle = '#181818';
+        ctx.fillRect(cx - ch - 60, 0, ch * 2 + 120, cy - ch - 60);
+        ctx.fillRect(cx - ch - 60, cy + ch + 60, ch * 2 + 120, size - cy - ch - 60);
+        ctx.fillRect(cx + ch + 60, 0, size - cx - ch - 60, size);
+        ctx.fillRect(0, 0, cx - ch - 60, size);
+        
+        // Road center lines
+        ctx.setLineDash([30, 22]);
+        ctx.strokeStyle = '#cccccc';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(cx, 0); ctx.lineTo(cx, cy - ch - 60);
+        ctx.moveTo(cx, cy + ch + 60); ctx.lineTo(cx, size);
+        ctx.moveTo(0, cy); ctx.lineTo(cx - ch - 60, cy);
+        ctx.moveTo(cx + ch + 60, cy); ctx.lineTo(size, cy);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.wrapS = THREE.ClampToEdgeWrapping;
+        tex.wrapT = THREE.ClampToEdgeWrapping;
+        tex.colorSpace = THREE.SRGBColorSpace;
+        return tex;
+    }
+
+    function createRaindropTexture() {
+        const sz = 16;
+        const canvas = document.createElement('canvas');
+        canvas.width = sz;
+        canvas.height = sz;
+        const ctx = canvas.getContext('2d');
+        const grad = ctx.createLinearGradient(0, 0, 0, sz);
+        grad.addColorStop(0, 'rgba(180,200,255,0)');
+        grad.addColorStop(0.25, 'rgba(180,200,255,0.25)');
+        grad.addColorStop(1, 'rgba(180,200,255,0.75)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, sz, sz);
+        return new THREE.CanvasTexture(canvas);
+    }
+
+    // ==================== GROUND ====================
+    const groundGeo = new THREE.PlaneGeometry(100, 100);
+    const scrambleTex = createScrambleTexture();
+    const groundMat = new THREE.MeshStandardMaterial({
+        map: scrambleTex,
+        roughness: 0.72,
+        metalness: 0.06,
+    });
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.05;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // ==================== BUILDING CREATION ====================
+    function createBuilding(x, z, w, d, h, winRows = 8, winCols = 4, litColor = '#ffcc88') {
+        const group = new THREE.Group();
+        
+        const geo = new THREE.BoxGeometry(w, h, d);
+        const tex = createWindowTexture(winRows, winCols, litColor);
+        
+        // Six materials: +x, -x, +y, -y, +z, -z
+        const materials = [
+            new THREE.MeshStandardMaterial({ map: tex.clone(), roughness: 0.65, metalness: 0.2, color: '#2a2a3a' }),
+            new THREE.MeshStandardMaterial({ map: tex.clone(), roughness: 0.65, metalness: 0.2, color: '#2a2a3a' }),
+            new THREE.MeshStandardMaterial({ color: '#1a1a2a', roughness: 0.9 }),
+            new THREE.MeshStandardMaterial({ color: '#1a1a2a', roughness: 0.9 }),
+            new THREE.MeshStandardMaterial({ map: tex.clone(), roughness: 0.65, metalness: 0.2, color: '#2a2a3a' }),
+            new THREE.MeshStandardMaterial({ map: tex.clone(), roughness: 0.65, metalness: 0.2, color: '#2a2a3a' }),
+        ];
+        
+        materials.forEach(m => {
+            if (m.map) {
+                m.emissive = new THREE.Color(litColor);
+                m.emissiveMap = m.map;
+                m.emissiveIntensity = 0.35;
+            }
+        });
+        
+        const mesh = new THREE.Mesh(geo, materials);
+        mesh.position.y = h / 2;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        group.add(mesh);
+        
+        group.position.set(x, 0, z);
+        group.userData = { w, d, h };
+        scene.add(group);
+        return group;
+    }
+
+    function addBillboard(bld, face, bw, bh, offX = 0, offY = 0) {
+        const { w, d, h } = bld.userData;
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 256;
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        
+        const mat = new THREE.MeshBasicMaterial({ map: tex });
+        const geo = new THREE.PlaneGeometry(bw, bh);
+        const screen = new THREE.Mesh(geo, mat);
+        
+        screen.position.y = h * 0.55 + offY;
+        
+        switch (face) {
+            case 'south':
+                screen.position.z = d / 2 + 0.12;
+                screen.position.x = offX;
+                break;
+            case 'north':
+                screen.position.z = -d / 2 - 0.12;
+                screen.position.x = offX;
+                screen.rotation.y = Math.PI;
+                break;
+            case 'east':
+                screen.position.x = w / 2 + 0.12;
+                screen.position.z = offX;
+                screen.rotation.y = -Math.PI / 2;
+                break;
+            case 'west':
+                screen.position.x = -w / 2 - 0.12;
+                screen.position.z = offX;
+                screen.rotation.y = Math.PI / 2;
+                break;
+        }
+        
+        bld.add(screen);
+        screen.userData = { canvas, tex, type: 'billboard' };
+        return screen;
+    }
+
+    function addNeonSign(bld, face, text, color, sw = 5, sh = 1.6, offX = 0, offY = 0) {
+        const { w, d, h } = bld.userData;
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Outer glow
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 35;
+        ctx.fillStyle = color;
+        ctx.font = 'bold 56px "Helvetica Neue", Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+        // Inner glow
+        ctx.shadowBlur = 15;
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+        // Core (white)
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+        
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        
+        const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+        const geo = new THREE.PlaneGeometry(sw, sh);
+        const sign = new THREE.Mesh(geo, mat);
+        
+        sign.position.y = h * 0.7 + offY;
+        
+        switch (face) {
+            case 'south':
+                sign.position.z = d / 2 + 0.16;
+                sign.position.x = offX;
+                break;
+            case 'north':
+                sign.position.z = -d / 2 - 0.16;
+                sign.position.x = offX;
+                sign.rotation.y = Math.PI;
+                break;
+            case 'east':
+                sign.position.x = w / 2 + 0.16;
+                sign.position.z = offX;
+                sign.rotation.y = -Math.PI / 2;
+                break;
+            case 'west':
+                sign.position.x = -w / 2 - 0.16;
+                sign.position.z = offX;
+                sign.rotation.y = Math.PI / 2;
+                break;
+        }
+        
+        bld.add(sign);
+        return sign;
+    }
+
+    // ==================== BUILDINGS ====================
+    
+    // -- North side --
+    const bN1 = createBuilding(-10, -24, 10, 8, 42, 11, 4, '#ffcc88');
+    addBillboard(bN1, 'south', 8, 6, 0, 3);
+    addNeonSign(bN1, 'south', 'SHIBUYA', '#ff3399', 6, 1.8, 0, -3);
+    addNeonLight(-10, 30, -20, 0xff3399, 28, 22);
+
+    const bN2 = createBuilding(7, -22, 9, 7, 34, 9, 4, '#aaccff');
+    addNeonSign(bN2, 'south', 'TOKYO', '#00ccff', 4.5, 1.5, 0, 3);
+    
+    const bN3 = createBuilding(20, -20, 7, 6, 26, 7, 3, '#ffdd88');
+    const bN4 = createBuilding(-24, -20, 8, 7, 29, 8, 3, '#ccddff');
+
+    // -- South side --
+    const bS1 = createBuilding(1, 24, 16, 10, 23, 6, 5, '#ffbb77');
+    addBillboard(bS1, 'north', 10, 5, 0, 2);
+    addNeonSign(bS1, 'north', '109', '#ff4444', 3.5, 2, 0, -2);
+    
+    // Shibuya 109 cylindrical tower
+    const cylGeo = new THREE.CylinderGeometry(3.5, 4, 27, 24);
+    const cylTex = createWindowTexture(10, 4, '#ffcc88');
+    const cylMat = new THREE.MeshStandardMaterial({ 
+        map: cylTex, roughness: 0.55, metalness: 0.3,
+        emissive: new THREE.Color('#ffcc88'), emissiveMap: cylTex, emissiveIntensity: 0.45
+    });
+    const cylinder = new THREE.Mesh(cylGeo, cylMat);
+    cylinder.position.set(10, 13.5, 24);
+    cylinder.castShadow = true;
+    scene.add(cylinder);
+    addNeonLight(10, 23, 24, 0xff4444, 32, 24);
+
+    const bS2 = createBuilding(-14, 23, 8, 7, 32, 9, 3, '#ffccaa');
+    addNeonSign(bS2, 'north', '109', '#ff6644', 3, 1.5, 0, 3);
+    
+    const bS3 = createBuilding(22, 22, 7, 6, 27, 7, 3, '#ddccff');
+    const bS4 = createBuilding(-26, 20, 7, 6, 21, 6, 3, '#ffddaa');
+
+    // -- East side --
+    const bE1 = createBuilding(25, -8, 8, 10, 37, 10, 4, '#aaddff');
+    addBillboard(bE1, 'west', 6, 5, 0, 3);
+    addNeonSign(bE1, 'west', 'SCRAMBLE', '#ffcc00', 5.5, 1.5, 0, -3);
+    addNeonLight(29, 27, -8, 0xffcc00, 26, 22);
+    
+    const bE2 = createBuilding(23, 8, 7, 8, 29, 8, 3, '#ffeebb');
+    addNeonSign(bE2, 'west', '交差点', '#00ff88', 3.5, 1.8, 0, 3);
+    
+    const bE3 = createBuilding(20, -21, 6, 7, 21, 6, 3, '#ccddff');
+    const bE4 = createBuilding(20, 21, 6, 7, 23, 6, 3, '#ffddcc');
+
+    // -- West side --
+    const bW1 = createBuilding(-25, -6, 9, 9, 40, 10, 4, '#ffcc99');
+    addBillboard(bW1, 'east', 7, 5, 0, 3);
+    addNeonSign(bW1, 'east', 'スクランブル', '#ff66cc', 5.5, 1.5, 0, -2);
+    addNeonLight(-29, 30, -6, 0xff66cc, 26, 24);
+    
+    const bW2 = createBuilding(-23, 8, 8, 8, 31, 8, 4, '#ccddff');
+    addNeonSign(bW2, 'east', '渋谷', '#ff4488', 3.5, 1.8, 0, 3);
+    
+    const bW3 = createBuilding(-20, 21, 6, 7, 25, 7, 3, '#ffeedd');
+    const bW4 = createBuilding(-21, -20, 6, 7, 23, 6, 3, '#ddddff');
+
+    // -- Corner fillers --
+    createBuilding(29, -25, 6, 6, 19, 5, 2, '#ffeecc');
+    createBuilding(-30, -25, 6, 6, 17, 5, 2, '#ddddff');
+    createBuilding(29, 25, 6, 6, 20, 5, 2, '#ffeedd');
+    createBuilding(-30, 25, 6, 6, 18, 5, 2, '#ddddee');
+
+    // ==================== RAIN ====================
+    const rainCount = 2500;
+    const rainGeo = new THREE.BufferGeometry();
+    const rainPos = new Float32Array(rainCount * 3);
+    const rainVel = new Float32Array(rainCount);
+    const spread = 50;
+    const rainH = 48;
+
+    for (let i = 0; i < rainCount; i++) {
+        rainPos[i * 3] = (Math.random() - 0.5) * spread;
+        rainPos[i * 3 + 1] = Math.random() * rainH;
+        rainPos[i * 3 + 2] = (Math.random() - 0.5) * spread;
+        rainVel[i] = 0.35 + Math.random() * 0.7;
+    }
+    rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPos, 3));
+    
+    const rainMat = new THREE.PointsMaterial({
+        map: createRaindropTexture(),
+        color: 0xaaccff,
+        size: 0.16,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        transparent: true,
+        opacity: 0.55,
+    });
+    const rain = new THREE.Points(rainGeo, rainMat);
+    scene.add(rain);
+
+    // ==================== CROWD (PEDESTRIANS) ====================
+    const crowdCount = 200;
+    const crowdGeo = new THREE.BoxGeometry(0.32, 0.85, 0.32);
+    const crowdMat = new THREE.MeshStandardMaterial({ color: 0x334455, roughness: 0.55 });
+    const crowdMesh = new THREE.InstancedMesh(crowdGeo, crowdMat, crowdCount);
+    crowdMesh.castShadow = true;
+    
+    const crowdData = [];
+    const matrix = new THREE.Matrix4();
+    const ch = 16; // crossing half-extent for crowd
+    
+    const dirs = [
+        { sx: 0, sz: -1, dx: 0, dz: 1 },   // N→S
+        { sx: 0, sz: 1, dx: 0, dz: -1 },    // S→N
+        { sx: -1, sz: 0, dx: 1, dz: 0 },    // W→E
+        { sx: 1, sz: 0, dx: -1, dz: 0 },    // E→W
+        { sx: -1, sz: -1, dx: 0.707, dz: 0.707 },  // NW→SE
+        { sx: 1, sz: 1, dx: -0.707, dz: -0.707 },  // SE→NW
+        { sx: -1, sz: 1, dx: 0.707, dz: -0.707 },  // SW→NE
+        { sx: 1, sz: -1, dx: -0.707, dz: 0.707 },  // NE→SW
+    ];
+    
+    for (let i = 0; i < crowdCount; i++) {
+        const d = dirs[Math.floor(Math.random() * dirs.length)];
+        const sx = d.sx * ch;
+        const sz = d.sz * ch;
+        const offset = Math.random() * ch * 1.8;
+        const px = sx + d.dx * offset;
+        const pz = sz + d.dz * offset;
+        
+        crowdData.push({ sx, sz, dx: d.dx, dz: d.dz, x: px, z: pz, speed: 0.018 + Math.random() * 0.05 });
+        
+        matrix.compose(
+            new THREE.Vector3(px, 0.42, pz),
+            new THREE.Quaternion(),
+            new THREE.Vector3(1, 1, 1)
+        );
+        crowdMesh.setMatrixAt(i, matrix);
+    }
+    crowdMesh.instanceMatrix.needsUpdate = true;
+    scene.add(crowdMesh);
+
+    // ==================== STREET DETAILS ====================
+    function createTrafficPole(x, z) {
+        const group = new THREE.Group();
+        
+        const poleGeo = new THREE.CylinderGeometry(0.18, 0.24, 8, 8);
+        const poleMat = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.45, metalness: 0.8 });
+        const pole = new THREE.Mesh(poleGeo, poleMat);
+        pole.position.y = 4;
+        pole.castShadow = true;
+        group.add(pole);
+        
+        const housingGeo = new THREE.BoxGeometry(0.55, 1.8, 0.5);
+        const housingMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.3, metalness: 0.8 });
+        const housing = new THREE.Mesh(housingGeo, housingMat);
+        housing.position.y = 8;
+        group.add(housing);
+        
+        const colors = [0xff0000, 0xffaa00, 0x00ff00];
+        for (let i = 0; i < 3; i++) {
+            const lGeo = new THREE.SphereGeometry(0.17, 8, 8);
+            const lMat = new THREE.MeshBasicMaterial({ color: colors[i] });
+            const light = new THREE.Mesh(lGeo, lMat);
+            light.position.y = 8.55 - i * 0.55;
+            group.add(light);
+        }
+        
+        group.position.set(x, 0, z);
+        scene.add(group);
+    }
+    
+    createTrafficPole(-17.5, -17.5);
+    createTrafficPole(17.5, -17.5);
+    createTrafficPole(-17.5, 17.5);
+    createTrafficPole(17.5, 17.5);
+
+    // ==================== OVERHEAD WIRES ====================
+    function createWire(x1, z1, y1, x2, z2, y2) {
+        const pts = [
+            new THREE.Vector3(x1, y1, z1),
+            new THREE.Vector3((x1 + x2) / 2, Math.max(y1, y2) + 0.6, (z1 + z2) / 2),
+            new THREE.Vector3(x2, y2, z2),
+        ];
+        const curve = new THREE.QuadraticBezierCurve3(pts[0], pts[1], pts[2]);
+        const geo = new THREE.TubeGeometry(curve, 20, 0.05, 4, false);
+        const mat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.8 });
+        scene.add(new THREE.Mesh(geo, mat));
+    }
+    
+    createWire(-25, -20, 23, -10, -24, 32);
+    createWire(7, -22, 26, 23, -8, 30);
+    createWire(-25, -6, 30, -10, -24, 32);
+    createWire(-23, 8, 24, 1, 24, 19);
+    createWire(10, 24, 18, 23, 8, 23);
+
+    // ==================== ADDITIONAL NEON LIGHTS ====================
+    addNeonLight(1, 17, 24, 0xff6644, 22, 20);
+    addNeonLight(-23, 23, 8, 0xff4488, 22, 20);
+    addNeonLight(23, 21, 8, 0x00ff88, 22, 20);
+    addNeonLight(7, 25, -22, 0x00ccff, 22, 20);
+    addNeonLight(-10, 32, -20, 0xff3399, 16, 18);
+
+    // ==================== ANIMATION ====================
+    const clock = new THREE.Clock();
+    
+    // Collect billboards
+    const billboardAnims = [];
+    scene.traverse(obj => {
+        if (obj.userData && obj.userData.type === 'billboard') {
+            const ctx = obj.userData.canvas.getContext('2d');
+            const w = obj.userData.canvas.width;
+            const h = obj.userData.canvas.height;
+            const idx = billboardAnims.length;
+            billboardAnims.push({ ctx, w, h, type: idx % 4, tex: obj.userData.tex });
+        }
+    });
+
+    function updateBillboards(t) {
+        for (const ba of billboardAnims) {
+            const { ctx, w, h, type } = ba;
+            ctx.clearRect(0, 0, w, h);
+            const sec = t * 0.001;
+            
+            if (type === 0) {
+                // Gradient + SHIBUYA
+                const hue = (sec * 0.08) % 1;
+                const grad = ctx.createLinearGradient(0, 0, w, h);
+                grad.addColorStop(0, `hsl(${hue * 360}, 85%, 42%)`);
+                grad.addColorStop(0.5, `hsl(${(hue + 0.3) * 360}, 90%, 32%)`);
+                grad.addColorStop(1, `hsl(${(hue + 0.6) * 360}, 85%, 42%)`);
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, w, h);
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 80px "Helvetica Neue", Arial, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = '#ff00ff';
+                ctx.shadowBlur = 18 + Math.sin(sec * 2.5) * 8;
+                ctx.fillText('SHIBUYA', w / 2, h / 2);
+                ctx.shadowBlur = 0;
+                
+            } else if (type === 1) {
+                // Abstract geometric
+                ctx.fillStyle = '#0d0d22';
+                ctx.fillRect(0, 0, w, h);
+                
+                const hue = (sec * 0.12) % 1;
+                for (let i = 0; i < 5; i++) {
+                    const x = w * 0.08 + (Math.sin(sec * 0.6 + i * 1.3) * 0.45 + 0.5) * w * 0.84;
+                    const y = h * 0.15 + i * h * 0.16;
+                    ctx.fillStyle = `hsl(${(hue * 360 + i * 55) % 360}, 85%, 55%)`;
+                    ctx.fillRect(x - 35, y, 70, 22);
+                }
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 44px "Helvetica Neue", Arial, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('TOKYO', w / 2, h * 0.78);
+                
+            } else if (type === 2) {
+                // Pulsing 109
+                const pulse = Math.sin(sec * 3.5) * 0.25 + 0.75;
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(0, 0, w, h);
+                
+                ctx.fillStyle = `rgba(255, ${50 + pulse * 45}, ${50 + pulse * 45}, 1)`;
+                ctx.fillRect(w * 0.08, h * 0.08, w * 0.84, h * 0.84);
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `bold ${100 + pulse * 25}px "Helvetica Neue", Arial, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('109', w / 2, h / 2);
+                
+            } else {
+                // Neon stripes
+                ctx.fillStyle = '#080818';
+                ctx.fillRect(0, 0, w, h);
+                
+                const hue = (sec * 0.18) % 1;
+                for (let i = 0; i < 8; i++) {
+                    const y = ((sec * 28 + i * h / 8) % h + h) % h;
+                    const alpha = 0.25 + Math.sin(sec * 2.2 + i) * 0.25;
+                    ctx.fillStyle = `hsla(${(hue * 360 + i * 48) % 360}, 90%, 55%, ${alpha})`;
+                    ctx.fillRect(0, y - 5, w, 11);
+                }
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 46px "Helvetica Neue", Arial, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('スクランブル', w / 2, h / 2);
+            }
+            
+            ba.tex.needsUpdate = true;
+        }
+    }
+
+    function animate(timestamp) {
+        requestAnimationFrame(animate);
+        
+        clock.getDelta();
+        controls.update();
+        
+        // --- Rain ---
+        const posArr = rainGeo.attributes.position.array;
+        for (let i = 0; i < rainCount; i++) {
+            posArr[i * 3 + 1] -= rainVel[i] * 0.55;
+            posArr[i * 3] += (Math.random() - 0.5) * 0.015;
+            if (posArr[i * 3 + 1] < 0) {
+                posArr[i * 3 + 1] = rainH;
+                posArr[i * 3] = (Math.random() - 0.5) * spread;
+                posArr[i * 3 + 2] = (Math.random() - 0.5) * spread;
+            }
+        }
+        rainGeo.attributes.position.needsUpdate = true;
+        
+        // --- Crowd ---
+        for (let i = 0; i < crowdCount; i++) {
+            const cd = crowdData[i];
+            cd.x += cd.dx * cd.speed;
+            cd.z += cd.dz * cd.speed;
+            
+            if (Math.abs(cd.x) > ch + 2 || Math.abs(cd.z) > ch + 2) {
+                const d = dirs[Math.floor(Math.random() * dirs.length)];
+                cd.sx = d.sx * ch;
+                cd.sz = d.sz * ch;
+                cd.dx = d.dx;
+                cd.dz = d.dz;
+                cd.x = cd.sx;
+                cd.z = cd.sz;
+                cd.speed = 0.018 + Math.random() * 0.05;
+            }
+            
+            const bob = Math.abs(Math.sin(timestamp * 0.004 + i)) * 0.06;
+            matrix.compose(
+                new THREE.Vector3(cd.x, 0.42 + bob, cd.z),
+                new THREE.Quaternion(),
+                new THREE.Vector3(1, 0.7 + Math.random() * 0.3, 1)
+            );
+            crowdMesh.setMatrixAt(i, matrix);
+        }
+        crowdMesh.instanceMatrix.needsUpdate = true;
+        
+        // --- Billboards ---
+        updateBillboards(timestamp);
+        
+        // --- Neon flicker ---
+        for (const nl of neonLights) {
+            nl.light.intensity = nl.baseIntensity + (Math.random() - 0.5) * 0.6;
+        }
+        
+        renderer.render(scene, camera);
+    }
+
+    // ==================== RESIZE ====================
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // ==================== START ====================
+    const loadingEl = document.getElementById('loading');
+    loadingEl.style.opacity = '0';
+    setTimeout(() => loadingEl.remove(), 400);
+    
+    requestAnimationFrame(animate);
+    
+    console.log('🏙️  Shibuya Scramble Crossing — Ready');
+    console.log('   Drag to orbit  ·  Scroll to zoom  ·  Auto-rotate');
+    </script>
+</body>
+</html>
