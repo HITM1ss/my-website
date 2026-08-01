@@ -1,0 +1,90 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Tech Kanban Preview</title>
+  <desc id="desc">A stylized tech-themed kanban board preview with cards and circuit accents.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#081826"/>
+      <stop offset="100%" stop-color="#0b1f2e"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0fd6ff" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#7b7bff" stop-opacity="0.06"/>
+    </linearGradient>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="b" />
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#bg)" />
+
+  <!-- circuit lines -->
+  <g stroke="#073f4f" stroke-width="2" opacity="0.95">
+    <path d="M80 160 H240 V240 H360" stroke-linecap="round" />
+    <path d="M240 240 V360 H400" stroke-linecap="round" />
+    <path d="M480 120 H840" stroke-linecap="round" stroke="#0fb3ff" opacity="0.12" />
+    <path d="M760 120 V360 H920" stroke-linecap="round" stroke="#6be3a6" opacity="0.08" />
+  </g>
+
+  <!-- columns -->
+  <g transform="translate(80,120)">
+    <rect x="0" y="0" width="300" height="520" rx="12" fill="#071521" stroke="#0b3250" stroke-width="1" />
+    <rect x="340" y="0" width="300" height="520" rx="12" fill="#071521" stroke="#0b3250" stroke-width="1" />
+    <rect x="680" y="0" width="300" height="520" rx="12" fill="#071521" stroke="#0b3250" stroke-width="1" />
+
+    <!-- column headers -->
+    <g fill="#9be8ff" font-family="Inter, sans-serif">
+      <text x="18" y="32" font-size="18" font-weight="700">待办</text>
+      <text x="358" y="32" font-size="18" font-weight="700">进行中</text>
+      <text x="698" y="32" font-size="18" font-weight="700">已完成</text>
+    </g>
+
+    <!-- cards in col 1 -->
+    <g transform="translate(18,56)">
+      <rect x="0" y="0" width="264" height="72" rx="8" fill="url(#cardGrad)" stroke="#1aaec7" stroke-opacity="0.18" />
+      <text x="12" y="26" fill="#e6fbff" font-family="Inter, sans-serif" font-size="14" font-weight="600">集成第三方 API</text>
+      <text x="12" y="46" fill="#9bd6e6" font-size="12">后端与认证</text>
+
+      <rect x="0" y="96" width="264" height="72" rx="8" fill="#071826" stroke="#0e4758" />
+      <text x="12" y="122" fill="#e6fbff" font-family="Inter, sans-serif" font-size="14" font-weight="600">设计移动端适配</text>
+      <text x="12" y="142" fill="#9bd6e6" font-size="12">响应式样式</text>
+    </g>
+
+    <!-- cards in col 2 -->
+    <g transform="translate(358,56)">
+      <rect x="0" y="0" width="264" height="72" rx="8" fill="#083041" stroke="#0fb3ff" />
+      <text x="12" y="26" fill="#c7f8ff" font-family="Inter, sans-serif" font-size="14" font-weight="600">实现拖拽排序</text>
+      <text x="12" y="46" fill="#9bd6e6" font-size="12">交互与动画</text>
+
+      <rect x="0" y="96" width="264" height="72" rx="8" fill="#083041" stroke="#6be3a6" />
+      <text x="12" y="122" fill="#c7f8ff" font-family="Inter, sans-serif" font-size="14" font-weight="600">优化本地存储</text>
+      <text x="12" y="142" fill="#9bd6e6" font-size="12">IndexedDB / localStorage</text>
+    </g>
+
+    <!-- cards in col 3 -->
+    <g transform="translate(698,56)">
+      <rect x="0" y="0" width="264" height="72" rx="8" fill="#072832" stroke="#5ad4ff" />
+      <text x="12" y="26" fill="#e7fff8" font-family="Inter, sans-serif" font-size="14" font-weight="600">部署到 Netlify</text>
+      <text x="12" y="46" fill="#9bd6e6" font-size="12">CI/CD</text>
+
+      <rect x="0" y="96" width="264" height="72" rx="8" fill="#072832" stroke="#6be3a6" />
+      <text x="12" y="122" fill="#e7fff8" font-family="Inter, sans-serif" font-size="14" font-weight="600">自动化测试</text>
+      <text x="12" y="142" fill="#9bd6e6" font-size="12">端到端覆盖</text>
+    </g>
+
+    <!-- decorative small nodes -->
+    <g>
+      <circle cx="320" cy="440" r="6" fill="#0ff1d6" opacity="0.9" />
+      <rect x="330" y="436" width="36" height="4" rx="2" fill="#0ff1d6" opacity="0.9" />
+    </g>
+  </g>
+
+  <!-- title -->
+  <g transform="translate(80,660)">
+    <text x="0" y="28" fill="#dffcff" font-family="Inter, sans-serif" font-size="42" font-weight="800">Tech Kanban</text>
+    <text x="0" y="56" fill="#9bd6e6" font-size="14">轻量的科技风待办板，支持拖拽与实时更新（示例）</text>
+  </g>
+</svg>
