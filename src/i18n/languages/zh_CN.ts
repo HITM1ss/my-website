@@ -49,7 +49,7 @@ export const zh_CN: Translation = {
 
 	[Key.comments]: "评论",
 	[Key.commentSection]: "评论区",
-	[Key.commentSubtitle]: "评论由 {giscus} 项目支持，若加载失败，请检查网络",
+	[Key.commentSubtitle]: "评论由 {waline} 项目支持",
 	[Key.commentNotConfigured]: "评论系统暂未配置",
 	[Key.guestbookCommentHint]:
 		"您还未在配置文件中启用评论系统，启用后访客才可在此留言",
