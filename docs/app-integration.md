@@ -37,19 +37,13 @@
 
 - `name`：应用名称
 - `description`：应用简介
-- `url`：应用实际链接，如 `/app/shibuya.html`
+- `url`：应用实际链接，如 `/app/my-game.html`
 - `icon`：图标名称
 - `image`：应用预览图链接
 - `tags`：应用标签
 - `enabled`：是否在应用页面中显示（可选，默认显示）
 
-当用户点击卡片时，会跳转到对应的 HTML 应用页面。
-
-### 静态应用页面 `public/app/shibuya.html`
-
-这是第一个示例应用页面，直接使用纯静态 HTML + Three.js 在浏览器中渲染。
-
-由于放在 `public/` 下，构建后会成为静态资源，用户可以通过 `/app/shibuya.html` 直接访问。
+当用户点击卡片时，会在新标签页中打开对应的 HTML 应用页面。
 
 ### 导航入口 `src/config/navBarConfig.ts`
 
@@ -92,17 +86,8 @@ public/app/my-game.html
 ```ts
 export const appConfig: AppConfig = [
   {
-    name: "渋谷スクランブル交差点",
-    description: "夜晚的 Shibuya 3D 体验，点击进入交差点场景。",
-    url: "/app/shibuya.html",
-    icon: "material-symbols:apps",
-    image: "/app/shibuya-preview.svg",
-    tags: ["3D", "游戏", "演示"],
-    enabled: true,
-  },
-  {
     name: "我的新应用",
-    description: "这是第二个 HTML 应用示例。",
+    description: "这是一个 HTML 应用示例。",
     url: "/app/my-game.html",
     icon: "material-symbols:gamepad",
     image: "/app/my-game-preview.svg",

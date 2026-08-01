@@ -14,6 +14,8 @@ const apps = appConfig.filter((app) => app.enabled !== false);
     {apps.map((app) => (
       <a
         href={app.url}
+        target="_blank"
+        rel="noreferrer noopener"
         class="group card-base flex flex-col justify-between overflow-hidden rounded-[1.5rem] border border-(--line-divider) bg-(--card-bg) shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
       >
         {app.image && (
@@ -45,7 +47,7 @@ const apps = appConfig.filter((app) => app.enabled !== false);
 
           <div class="mt-6 flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
             <Icon is:inline name="material-symbols:open-in-new" class="text-lg" />
-            <span>在当前页面中打开应用</span>
+            <span>在新标签页中打开应用</span>
           </div>
         </div>
       </a>
