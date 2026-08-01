@@ -4,17 +4,25 @@
 
 ## 目录结构说明
 
-当前“应用”功能由三个主要部分组成：
+当前“应用”功能由四个主要部分组成：
 
 1. `src/pages/app/index.astro`
    - 这是应用首页，用来展示当前已注册的应用列表。
    - 当用户点击导航栏的“应用”时，会进入这个页面。
 
-2. `public/app/` 目录
+2. `src/config/appConfig.ts`
+   - 用于集中管理应用模块的属性。
+   - 支持 `name`、`description`、`url`、`icon`、`image`、`tags`、`enabled` 等字段。
+
+3. `src/types/appConfig.ts`
+   - 定义应用模块的类型 `AppItem` 和 `AppConfig`。
+   - 让新增应用时有类型提示，便于后续维护。
+
+4. `public/app/` 目录
    - 存放实际的静态 HTML 应用文件。
    - 每个应用可以是一个 `html` 页面，或一个包含资源的子目录。
 
-3. `src/config/navBarConfig.ts`
+5. `src/config/navBarConfig.ts`
    - 控制导航栏是否显示“应用”入口，并映射到 `/app/` 页面。
 
 ---
@@ -31,7 +39,9 @@
 - `description`：应用简介
 - `url`：应用实际链接，如 `/app/shibuya.html`
 - `icon`：图标名称
+- `image`：应用预览图链接
 - `tags`：应用标签
+- `enabled`：是否在应用页面中显示（可选，默认显示）
 
 当用户点击卡片时，会跳转到对应的 HTML 应用页面。
 
@@ -77,23 +87,27 @@ public/app/my-game.html
 
 ### 2. 在应用展示页注册新应用
 
-打开 `src/pages/app/index.astro`，在 `apps` 数组中新增一个条目：
+打开 `src/config/appConfig.ts`，在配置数组中新增一个条目：
 
 ```ts
-const apps = [
+export const appConfig: AppConfig = [
   {
     name: "渋谷スクランブル交差点",
     description: "夜晚的 Shibuya 3D 体验，点击进入交差点场景。",
     url: "/app/shibuya.html",
     icon: "material-symbols:apps",
+    image: "/app/shibuya-preview.svg",
     tags: ["3D", "游戏", "演示"],
+    enabled: true,
   },
   {
     name: "我的新应用",
     description: "这是第二个 HTML 应用示例。",
     url: "/app/my-game.html",
     icon: "material-symbols:gamepad",
+    image: "/app/my-game-preview.svg",
     tags: ["游戏", "互动"],
+    enabled: true,
   },
 ];
 ```
@@ -128,7 +142,7 @@ public/app/my-tool/index.html
 然后在展示页中将 `url` 设置为 `/app/my-tool/`。
 
 - 应用页面内部如果引用额外静态资源（图片、脚本、音频等），建议也放在 `public/app/` 或 `public/assets/` 下。
-- 主页应用列表目前由 `src/pages/app/index.astro` 的 `apps` 数组维护，新增/更新时同步修改说明文档。
+- 主页应用列表目前由 `src/config/appConfig.ts` 的 `appConfig` 数组维护，新增/更新时同步修改说明文档。
 
 ---
 
