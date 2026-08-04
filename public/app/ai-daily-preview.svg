@@ -1,0 +1,96 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">AI 每日晨报预览</title>
+  <desc id="desc">深色 AI 晨报界面，展示每日资讯分类、数据概览和新闻卡片。</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b0e14"/>
+      <stop offset="52%" stop-color="#141c31"/>
+      <stop offset="100%" stop-color="#0f131c"/>
+    </linearGradient>
+    <linearGradient id="header" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1b2744"/>
+      <stop offset="100%" stop-color="#151a24"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4f8cff"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#background)"/>
+  <circle cx="1060" cy="80" r="160" fill="#5b66db" fill-opacity=".18" filter="url(#glow)"/>
+  <circle cx="120" cy="700" r="150" fill="#147a9d" fill-opacity=".14" filter="url(#glow)"/>
+
+  <g transform="translate(80 72)" font-family="PingFang SC, Noto Sans SC, sans-serif">
+    <rect width="1040" height="244" rx="24" fill="url(#header)" stroke="#ffffff" stroke-opacity=".12"/>
+    <rect x="44" y="42" width="10" height="10" rx="5" fill="#4f8cff"/>
+    <text x="70" y="52" fill="#76a6ff" font-size="16" font-weight="700">DAILY AI INTELLIGENCE</text>
+    <text x="44" y="117" fill="#e8ebf4" font-size="48" font-weight="800">AI 每日晨报</text>
+    <text x="44" y="153" fill="#a6aec3" font-size="20">模型、产品、行业与论文的每日精选</text>
+    <rect x="44" y="180" width="174" height="42" rx="12" fill="#202a40" stroke="#ffffff" stroke-opacity=".12"/>
+    <text x="62" y="208" fill="#e8ebf4" font-size="18" font-weight="700">24 条今日动态</text>
+
+    <g transform="translate(644 54)">
+      <rect width="152" height="118" rx="16" fill="#171f31" stroke="#5b9dff" stroke-opacity=".5"/>
+      <rect width="152" height="4" rx="2" fill="#5b9dff"/>
+      <text x="18" y="57" fill="#e8ebf4" font-size="32" font-weight="800">06</text>
+      <text x="18" y="88" fill="#a6aec3" font-size="16">模型更新</text>
+    </g>
+    <g transform="translate(816 54)">
+      <rect width="152" height="118" rx="16" fill="#171f31" stroke="#3ecf9a" stroke-opacity=".5"/>
+      <rect width="152" height="4" rx="2" fill="#3ecf9a"/>
+      <text x="18" y="57" fill="#e8ebf4" font-size="32" font-weight="800">09</text>
+      <text x="18" y="88" fill="#a6aec3" font-size="16">行业动态</text>
+    </g>
+
+    <g transform="translate(0 286)">
+      <rect width="1040" height="50" rx="14" fill="#121926" stroke="#ffffff" stroke-opacity=".1"/>
+      <rect x="14" y="9" width="130" height="32" rx="9" fill="url(#accent)"/>
+      <text x="37" y="31" fill="#ffffff" font-size="15" font-weight="700">模型发布</text>
+      <text x="180" y="31" fill="#a6aec3" font-size="15">产品更新</text>
+      <text x="302" y="31" fill="#a6aec3" font-size="15">行业动态</text>
+      <text x="424" y="31" fill="#a6aec3" font-size="15">论文研究</text>
+      <text x="536" y="31" fill="#a6aec3" font-size="15">技巧观点</text>
+    </g>
+
+    <g transform="translate(0 366)">
+      <rect width="332" height="258" rx="18" fill="#171e2c" stroke="#ffffff" stroke-opacity=".1"/>
+      <rect x="20" y="20" width="42" height="42" rx="12" fill="#2b4772"/>
+      <text x="33" y="49" fill="#9fc3ff" font-size="17" font-weight="800">01</text>
+      <rect x="78" y="28" width="86" height="24" rx="12" fill="#0f131c"/>
+      <text x="90" y="45" fill="#a6aec3" font-size="13">模型发布</text>
+      <text x="20" y="98" fill="#e8ebf4" font-size="20" font-weight="700">新一代推理模型发布</text>
+      <text x="20" y="132" fill="#a6aec3" font-size="15">更长上下文与多模态能力，</text>
+      <text x="20" y="157" fill="#a6aec3" font-size="15">面向开发者开放体验。</text>
+      <path d="M20 204H312" stroke="#ffffff" stroke-opacity=".12" stroke-dasharray="4 6"/>
+      <text x="20" y="234" fill="#76a6ff" font-size="15" font-weight="700">查看来源</text>
+    </g>
+    <g transform="translate(354 366)">
+      <rect width="332" height="258" rx="18" fill="#171e2c" stroke="#ffffff" stroke-opacity=".1"/>
+      <rect x="20" y="20" width="42" height="42" rx="12" fill="#284d45"/>
+      <text x="33" y="49" fill="#83e4bf" font-size="17" font-weight="800">02</text>
+      <rect x="78" y="28" width="86" height="24" rx="12" fill="#0f131c"/>
+      <text x="90" y="45" fill="#a6aec3" font-size="13">行业动态</text>
+      <text x="20" y="98" fill="#e8ebf4" font-size="20" font-weight="700">企业 AI 应用提速</text>
+      <text x="20" y="132" fill="#a6aec3" font-size="15">多家团队公布智能体产品，</text>
+      <text x="20" y="157" fill="#a6aec3" font-size="15">聚焦工作流自动化。</text>
+      <path d="M20 204H312" stroke="#ffffff" stroke-opacity=".12" stroke-dasharray="4 6"/>
+      <text x="20" y="234" fill="#76a6ff" font-size="15" font-weight="700">查看来源</text>
+    </g>
+    <g transform="translate(708 366)">
+      <rect width="332" height="258" rx="18" fill="#171e2c" stroke="#ffffff" stroke-opacity=".1"/>
+      <rect x="20" y="20" width="42" height="42" rx="12" fill="#594629"/>
+      <text x="33" y="49" fill="#ffd589" font-size="17" font-weight="800">03</text>
+      <rect x="78" y="28" width="86" height="24" rx="12" fill="#0f131c"/>
+      <text x="90" y="45" fill="#a6aec3" font-size="13">论文研究</text>
+      <text x="20" y="98" fill="#e8ebf4" font-size="20" font-weight="700">高效检索新方法</text>
+      <text x="20" y="132" fill="#a6aec3" font-size="15">研究提出更稳定的长文档</text>
+      <text x="20" y="157" fill="#a6aec3" font-size="15">检索与生成协作机制。</text>
+      <path d="M20 204H312" stroke="#ffffff" stroke-opacity=".12" stroke-dasharray="4 6"/>
+      <text x="20" y="234" fill="#76a6ff" font-size="15" font-weight="700">查看来源</text>
+    </g>
+  </g>
+</svg>

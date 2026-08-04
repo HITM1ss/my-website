@@ -79,7 +79,17 @@ public/app/my-game.html
 
 只要不依赖服务器端渲染，放到 `public/` 下即可直接访问。
 
-### 2. 在应用展示页注册新应用
+### 2. 添加应用预览图
+
+在 `public/app/` 下添加与应用同名的预览图，例如：
+
+```text
+public/app/my-game-preview.svg
+```
+
+应用列表会使用 `image` 字段展示预览图。推荐使用 `1200 x 800` 的 SVG 或 WebP，内容应直接反映应用的核心界面或功能；请在注册时始终填写该字段。
+
+### 3. 在应用展示页注册新应用
 
 打开 `src/config/appConfig.ts`，在配置数组中新增一个条目：
 
@@ -99,7 +109,7 @@ export const appConfig: AppConfig = [
 
 这个页面会自动生成新的卡片列表，并保持与站点现有风格一致。
 
-### 3. 确保导航仍指向 `/app/`
+### 4. 确保导航仍指向 `/app/`
 
 如果需要修改导航入口，检查 `src/config/navBarConfig.ts`：
 
@@ -134,9 +144,10 @@ public/app/my-tool/index.html
 ## 典型应用接入流程
 
 1. 新建 HTML 文件：`public/app/new-app.html`
-2. 新建或复制资源到 `public/app/` 目录
-3. 在 `src/pages/app/index.astro` 中添加卡片信息
-4. 本地预览：`pnpm dev`，访问 `/app/` 并确认卡片跳转正常
+2. 新建预览图：`public/app/new-app-preview.svg`
+3. 新建或复制其他资源到 `public/app/` 目录
+4. 在 `src/config/appConfig.ts` 中注册应用并填写 `image`
+5. 本地预览：`pnpm dev`，访问 `/app/` 并确认预览图与跳转正常
 
 ---
 

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>AI 每日晨报</title>
+<style>
+  /* ============ 设计令牌（暗色 AI 产品风，单主题） ============
+     颜色：冷灰玻璃底 + 蓝紫渐变强调（唯一交互强调）+ 低饱和类别色（语义标记）
+     圆角：大容器 20 / 面板卡片 16 / 小控件 10 / 日历格 9 / chip 全圆
+     动效：只动 transform/opacity，全局 prefers-reduced-motion 降级 */
+  :root{
+    --bg:#0b0e14; --bg-2:#0f131c;
+    --surface:rgba(21,26,36,.72); --surface-solid:#151a24;
+    --surface-2:rgba(27,33,46,.82);
+    --line:rgba(255,255,255,.08); --line-strong:rgba(255,255,255,.15);
+    --text:#e8ebf4; --text-2:#a6aec3; --text-3:#68728a;
+    --acc1:#4f8cff; --acc2:#8b5cf6;           /* AI 渐变强调 */
+    --accent:var(--acc1); --accent-ink:#0a1424;
+    --r-lg:20px; --r:16px; --r-sm:10px; --r-xs:9px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+    background:var(--bg);
+    color:var(--text); line-height:1.7; -webkit-font-smoothing:antialiased;
+    font-feature-settings:"tnum";
+  }
+  ::selection{background:rgba(99,120,255,.35)}
+  :focus-visible{outline:2px solid var(--acc2);outline-offset:2px;border-radius:4px}
+  a{color:inherit}
+
+  /* 极光背景层（固定、不拦截事件；只动 transform/opacity） */
+  .aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .aurora i{position:absolute;border-radius:50%;filter:blur(90px);opacity:.42;will-change:transform}
+  .aurora i:nth-child(1){width:560px;height:560px;left:-140px;top:-160px;
+    background:radial-gradient(circle at 35% 35%,#2b4fae,#1d2f66 72%);animation:drift1 26s ease-in-out infinite alternate}
+  .aurora i:nth-child(2){width:480px;height:480px;right:-120px;top:6%;
+    background:radial-gradient(circle at 60% 40%,#3d2f8f,#221a4e 72%);animation:drift2 32s ease-in-out infinite alternate}
+  .aurora i:nth-child(3){width:520px;height:520px;left:36%;bottom:-220px;
+    background:radial-gradient(circle at 50% 50%,#14507a,#0d2436 72%);animation:drift3 38s ease-in-out infinite alternate}
+  @keyframes drift1{to{transform:translate(60px,42px) scale(1.08)}}
+  @keyframes drift2{to{transform:translate(-52px,60px) scale(1.1)}}
+  @keyframes drift3{to{transform:translate(42px,-52px) scale(1.06)}}
+
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 20px 80px}
+
+  /* ============ HERO（玻璃面板） ============ */
+  .hero{
+    background:linear-gradient(140deg,rgba(22,30,50,.86),rgba(14,18,32,.78) 58%,rgba(11,14,20,.92));
+    border:1px solid var(--line); border-radius:var(--r-lg); padding:38px 34px 32px; margin:28px 0 18px;
+    position:relative; overflow:hidden;
+    backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .hero::before{content:"";position:absolute;top:0;left:14%;right:14%;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(125,145,255,.55),transparent)}
+  .hero::after{content:"";position:absolute;right:-90px;top:-90px;width:300px;height:300px;border-radius:50%;
+    background:radial-gradient(circle,rgba(99,110,255,.18),transparent 66%);pointer-events:none}
+  .hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .kicker{display:flex;align-items:center;gap:9px;color:var(--acc1);font-weight:700;
+    letter-spacing:.16em;font-size:11px;text-transform:uppercase}
+  .live-dot{flex:none;width:7px;height:7px;border-radius:50%;
+    background:linear-gradient(135deg,var(--acc1),var(--acc2));
+    box-shadow:0 0 12px rgba(120,140,255,.85);animation:livePulse 2.4s ease-in-out infinite}
+  @keyframes livePulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.4);opacity:.45}}
+  .hero h1{font-size:clamp(30px,4.6vw,46px);font-weight:800;margin:12px 0 4px;letter-spacing:-.02em;line-height:1.15}
+  .hero .meta{color:var(--text-2);font-size:13.5px}
+  .total-badge{display:inline-flex;align-items:baseline;gap:8px;margin-top:18px;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:10px 16px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+  .total-badge b{font-size:30px;font-weight:800;color:var(--text)}
+  .total-badge span{color:var(--text-2);font-size:13px}
+  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:22px}
+  .stat{background:linear-gradient(180deg,rgba(21,26,36,.6),rgba(21,26,36,.35));border:1px solid var(--line);
+    border-radius:var(--r);padding:14px 14px 12px;border-top:3px solid var(--c);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04);transition:transform .2s cubic-bezier(.16,1,.3,1),border-color .2s ease}
+  .stat:hover{transform:translateY(-2px);border-color:var(--c)}
+  .stat .n{font-size:24px;font-weight:800;color:var(--text)}
+  .stat .l{font-size:12.5px;color:var(--text-2);margin-top:2px}
+
+  .icon-btn{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--line);
+    color:var(--text-2);border-radius:var(--r-sm);padding:7px 11px;font-size:13px;cursor:pointer;font-weight:600;
+    font-family:inherit;transition:border-color .18s ease,color .18s ease,transform .12s ease,box-shadow .18s ease}
+  .icon-btn:hover{border-color:var(--acc2);color:var(--text);box-shadow:0 0 0 1px rgba(139,92,246,.25)}
+  .icon-btn:active{transform:scale(.97)}
+  .icon-btn svg{flex:none}
+  .hero-controls{display:flex;align-items:center;gap:12px;margin:16px 0 2px;flex-wrap:wrap}
+  .date-label{font-size:13px;color:var(--text-3);font-weight:600;white-space:nowrap}
+  .date-trigger{display:inline-flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);
+    color:var(--text);border-radius:var(--r-sm);padding:7px 13px;font-size:13.5px;cursor:pointer;font-weight:600;
+    font-family:inherit;white-space:nowrap;transition:border-color .18s ease,box-shadow .18s ease,transform .12s ease}
+  .date-trigger:hover{border-color:var(--acc2);box-shadow:0 0 0 1px rgba(139,92,246,.28),0 4px 18px -6px rgba(99,110,255,.4)}
+  .date-trigger:active{transform:scale(.98)}
+  .date-trigger svg{color:var(--acc1);flex:none}
+
+  /* ============ 日历弹层 ============ */
+  .cal-pop{position:fixed;z-index:100;width:330px;background:rgba(24,29,42,.96);border:1px solid var(--line-strong);
+    border-radius:var(--r);padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.06);
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px)}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .cal-title{font-weight:700;font-size:15px;color:var(--text)}
+  .cal-nav{display:inline-flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--line);
+    color:var(--text);border-radius:var(--r-sm);width:32px;height:32px;cursor:pointer;font-size:16px;line-height:1;font-family:inherit;
+    transition:border-color .15s ease,color .15s ease,transform .12s ease}
+  .cal-nav:hover{border-color:var(--acc2);color:var(--acc2)}
+  .cal-nav:active{transform:scale(.92)}
+  .cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px}
+  .cal-week span{text-align:center;font-size:12px;color:var(--text-3);font-weight:600}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal-cell{display:flex;align-items:center;justify-content:center;height:34px;border-radius:var(--r-xs);
+    font-size:13px;border:none;background:rgba(255,255,255,.045);color:var(--text-2);cursor:default;
+    font-family:inherit;padding:0;line-height:1}
+  .cal-cell.empty{background:transparent}
+  .cal-cell.on{background:var(--surface-solid);color:var(--text);cursor:pointer;font-weight:600;
+    transition:background .15s ease,color .15s ease,transform .12s ease}
+  .cal-cell.on:hover{background:linear-gradient(135deg,var(--acc1),var(--acc2));color:var(--accent-ink);transform:scale(1.08)}
+  .cal-cell.on:active{transform:scale(.94)}
+  .cal-cell.sel{outline:2px solid var(--acc2);outline-offset:-2px}
+  .cal-foot{margin-top:12px;text-align:center}
+  .cal-latest{background:var(--surface);border:1px solid var(--line);color:var(--text-2);border-radius:var(--r-sm);
+    padding:7px 14px;font-size:12.5px;cursor:pointer;font-family:inherit;transition:border-color .15s ease,color .15s ease}
+  .cal-latest:hover{border-color:var(--acc2);color:var(--text)}
+
+  /* ============ 锚点导航（玻璃） ============ */
+  .nav{position:sticky;top:0;z-index:20;background:rgba(11,14,20,.74);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--line);border-radius:var(--r);padding:8px;margin:14px 0 28px;
+    display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .nav a{color:var(--text-2);text-decoration:none;font-size:13.5px;font-weight:600;
+    padding:8px 14px;border-radius:var(--r-sm);display:inline-flex;gap:7px;align-items:center;transition:color .18s ease,background .18s ease}
+  .nav a:hover{color:var(--text);background:var(--surface-2)}
+  .nav a.active{color:#fff;background:var(--surface-2);box-shadow:inset 0 -2px 0 var(--acc2)}
+  .nav a .cnt{font-size:11px;background:var(--line);color:var(--text);border-radius:20px;padding:1px 8px;font-variant-numeric:tabular-nums}
+
+  /* ============ 版块 ============ */
+  .section{margin:38px 0}
+  .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .sec-tick{flex:none;width:4px;height:18px;border-radius:2px;background:var(--c);
+    box-shadow:0 0 10px -1px var(--c)}
+  .sec-head h2{font-size:20px;font-weight:750;letter-spacing:-.01em}
+  .sec-head .badge{margin-left:auto;font-size:12.5px;color:var(--text-3);font-variant-numeric:tabular-nums;
+    background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:3px 12px}
+
+  /* ============ 卡片网格（玻璃，错峰入场） ============ */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .card{background:linear-gradient(180deg,rgba(21,26,36,.88),rgba(27,33,46,.9));
+    border:1px solid var(--line);border-radius:var(--r);padding:18px 18px 16px;
+    display:flex;flex-direction:column;position:relative;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    animation:rise .45s cubic-bezier(.16,1,.3,1) both;
+    transition:transform .2s cubic-bezier(.16,1,.3,1),border-color .2s ease,box-shadow .2s ease}
+  .card:nth-child(2){animation-delay:.05s}.card:nth-child(3){animation-delay:.1s}
+  .card:nth-child(4){animation-delay:.15s}.card:nth-child(5){animation-delay:.2s}
+  .card:nth-child(6){animation-delay:.25s}
+  .card:hover{transform:translateY(-2px);border-color:var(--c);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 16px 36px -20px rgba(0,0,0,.9),0 0 0 1px rgba(120,140,255,.10)}
+  .card:active{transform:translateY(0) scale(.997)}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .card .top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .num{flex:none;width:34px;height:34px;border-radius:var(--r-sm);display:grid;place-items:center;
+    font-weight:800;font-size:15px;color:var(--accent-ink);background:var(--c);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+  .chip{font-size:12px;color:var(--text-2);background:var(--bg-2);border:1px solid var(--line);
+    border-radius:20px;padding:3px 11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
+  .card h3{font-size:15.5px;font-weight:650;line-height:1.5;margin-bottom:8px}
+  .card h3 a{color:var(--text);text-decoration:none;transition:color .15s ease}
+  .card h3 a:hover{color:var(--acc1)}
+  .card p{color:var(--text-2);font-size:13.5px;line-height:1.65;flex:1}
+  .card .foot{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);
+    display:flex;align-items:center;gap:6px}
+  .card .foot a{color:var(--acc1);text-decoration:none;font-weight:700;font-size:13px;
+    display:inline-flex;align-items:center;gap:4px;transition:color .15s ease}
+  .card .foot a:hover{color:var(--acc2)}
+  .empty{color:var(--text-3);font-size:14px;background:var(--surface);border:1px dashed var(--line);
+    border-radius:var(--r);padding:26px;text-align:center}
+
+  /* ============ 骨架屏 ============ */
+  .skel{background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.12) 37%,rgba(255,255,255,.05) 63%);
+    background-size:400% 100%;animation:skel 1.4s ease infinite;border-radius:6px}
+  @keyframes skel{0%{background-position:100% 0}100%{background-position:0 0}}
+  .skel-badge{width:34px;height:34px;border-radius:var(--r-sm)}
+  .skel-chip{width:96px;height:18px;border-radius:20px}
+  .skel-line{height:12px;margin-top:9px}
+  .w90{width:90%}.w80{width:80%}.w70{width:70%}
+  .skel-link{height:14px;width:72px;margin-top:14px}
+
+  .status{padding:64px 20px;text-align:center;color:var(--text-2);font-size:15px}
+  .status.err{color:#f0a3a3}
+  .status.err .sub{font-size:13px;margin-top:10px;max-width:580px;margin-left:auto;margin-right:auto;line-height:1.7;color:var(--text-3)}
+
+  /* ============ 页脚 ============ */
+  footer{margin-top:48px;padding-top:22px;border-top:1px solid var(--line);
+    color:var(--text-3);font-size:13px;text-align:center;line-height:2}
+  footer a{color:var(--acc1);text-decoration:none}
+
+  /* ============ 响应式与动效降级 ============ */
+  @media (max-width:720px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .hero{padding:26px 20px}
+    .nav a{padding:7px 10px;font-size:12.5px}
+    .hero-top{flex-direction:column-reverse;align-items:flex-start}
+    .aurora i{opacity:.3}
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation-duration:.001s !important;animation-iteration-count:1 !important;transition-duration:.001s !important}
+    .card,.card:hover,.card:active{transform:none}
+    .aurora i{animation:none;opacity:.18}
+    .live-dot{animation:none;opacity:.8}
+    .skel{animation:none;background:rgba(255,255,255,.05)}
+  }
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-top">
+      <div class="kicker"><span class="live-dot" aria-hidden="true"></span>AI HOT · 每日晨报</div>
+      <button id="refresh" class="icon-btn" type="button" aria-label="重新加载">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+        重新加载
+      </button>
+    </div>
+    <div class="hero-controls">
+      <span class="date-label">日期</span>
+      <button id="date-trigger" class="date-trigger" type="button">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
+        <span id="trigger-date">选择日期</span>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+    <h1 id="h-date">加载中…</h1>
+    <div class="meta" id="h-window"></div>
+    <div class="total-badge"><b id="h-total">0</b><span>条内容</span></div>
+    <div class="stats" id="h-stats"></div>
+  </header>
+
+  <div id="cal-pop" class="cal-pop" hidden>
+    <div class="cal-head">
+      <button id="cal-prev" class="cal-nav" type="button" aria-label="上个月">‹</button>
+      <span id="cal-title" class="cal-title"></span>
+      <button id="cal-next" class="cal-nav" type="button" aria-label="下个月">›</button>
+    </div>
+    <div class="cal-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+    <div id="cal-grid" class="cal-grid"></div>
+    <div class="cal-foot"><button id="cal-latest" class="cal-latest" type="button">跳到最新一期</button></div>
+  </div>
+
+  <nav class="nav" id="nav"></nav>
+
+  <main id="main"><div class="status">正在加载今日 AI 日报…</div></main>
+
+  <footer>
+    <div id="f-total"></div>
+    <div>数据来源：<a id="f-src" href="https://aihot.virxact.com" target="_blank" rel="noopener noreferrer"></a>，原文版权归原作者所有</div>
+    <div>每次打开实时拉取 AI HOT 日报，仅供阅读参考</div>
+  </footer>
+
+</div>
+
+<script>
+const SECTIONS_DEF = [
+  {key:"models",   label:"模型发布/更新", color:"#5b9dff"},
+  {key:"products", label:"产品发布/更新", color:"#9b8bf0"},
+  {key:"industry", label:"行业动态",      color:"#3ecf9a"},
+  {key:"papers",   label:"论文研究",      color:"#f0b14b"},
+  {key:"tips",     label:"技巧与观点",    color:"#ec7fb0"},
+];
+const LABEL_TO_KEY = {
+  "模型发布/更新":"models", "产品发布/更新":"products", "行业动态":"industry",
+  "论文研究":"papers", "技巧与观点":"tips"
+};
+const API = "https://aihot.virxact.com/api/v1";
+
+function el(tag, cls, txt){ const e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
+function pad(n){ return String(n).padStart(2,"0"); }
+function ymd(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+
+// 摘要清洗：去内嵌 URL、去反引号、折叠空白、截断 <=60 字
+function cleanSummary(s){
+  if(!s) return "";
+  s = s.replace(/https?:\/\/\S+/g, "");
+  s = s.replace(/`/g, "");
+  s = s.replace(/\s+/g, " ").trim();
+  if(s.length > 60) s = s.slice(0, 59) + "…";
+  return s;
+}
+function formatDateText(iso){
+  const [y,m,d] = iso.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m-1, d));
+  const wd = ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"][dt.getUTCDay()];
+  return y+"年"+m+"月"+d+"日 "+wd;
+}
+// 北京时间人话（按 UTC+8 计算，不受浏览器时区影响）
+function toBeijingHuman(iso){
+  const dt = new Date(iso);
+  const bj = new Date(dt.getTime() + 8*3600*1000);
+  return (bj.getUTCMonth()+1)+"月"+bj.getUTCDate()+"日 "+pad(bj.getUTCHours())+":"+pad(bj.getUTCMinutes());
+}
+
+function buildData(report){
+  const buckets = {}; SECTIONS_DEF.forEach(s => buckets[s.key] = []);
+  (report.sections || []).forEach(sec => {
+    const key = LABEL_TO_KEY[sec.label];
+    if(!key) return;
+    (sec.items || []).forEach(it => {
+      buckets[key].push({
+        title: it.title || "",
+        source: (it.source && it.source.name) || "未知来源",
+        summary: cleanSummary(it.summary),
+        url: (it.links && (it.links.original || it.links.aihot)) || "#"
+      });
+    });
+  });
+  let num = 0; const sections = [];
+  SECTIONS_DEF.forEach(({key,label,color}) => {
+    const items = (buckets[key] || []).map(it => ({ ...it, num: ++num }));
+    sections.push({ key, label, color, count: items.length, items });
+  });
+  return {
+    dateText: formatDateText(report.date),
+    dateIso: report.date,
+    windowText: "统计区间：" + toBeijingHuman(report.windowStart) + " - " + toBeijingHuman(report.windowEnd) + "（北京时间）",
+    total: num,
+    source: "AI HOT 日报",
+    sourceUrl: (report.links && report.links.aihot) || "https://aihot.virxact.com",
+    sections
+  };
+}
+
+function render(data){
+  document.getElementById("h-date").textContent = data.dateText;
+  document.getElementById("h-window").textContent = data.windowText;
+  document.getElementById("h-total").textContent = data.total;
+
+  const stats = document.getElementById("h-stats"); stats.innerHTML = "";
+  data.sections.forEach(s => {
+    const d = el("div","stat"); d.style.setProperty("--c", s.color);
+    d.appendChild(el("div","n", String(s.count)));
+    d.appendChild(el("div","l", s.label));
+    stats.appendChild(d);
+  });
+
+  const nav = document.getElementById("nav"); nav.innerHTML = "";
+  const navLinks = [];
+  data.sections.forEach(s => {
+    const a = el("a"); a.href = "#sec-" + s.key; a.style.setProperty("--c", s.color);
+    a.appendChild(el("span", null, s.label));
+    a.appendChild(el("span","cnt", String(s.count)));
+    nav.appendChild(a); navLinks.push(a);
+  });
+
+  const main = document.getElementById("main"); main.innerHTML = "";
+  const secEls = [];
+  data.sections.forEach(s => {
+    const sec = el("section","section"); sec.id = "sec-" + s.key; sec.style.setProperty("--c", s.color);
+    const head = el("div","sec-head");
+    head.appendChild(el("span","sec-tick"));
+    head.appendChild(el("h2", null, s.label));
+    head.appendChild(el("span","badge", s.count + " 条"));
+    sec.appendChild(head);
+
+    if(s.items.length === 0){
+      sec.appendChild(el("div","empty","今日暂无相关动态"));
+    } else {
+      const grid = el("div","grid");
+      s.items.forEach(it => {
+        const card = el("div","card");
+        const top = el("div","top");
+        top.appendChild(el("div","num", String(it.num)));
+        top.appendChild(el("div","chip", it.source));
+        card.appendChild(top);
+        const h3 = el("h3"); const a = el("a");
+        a.textContent = it.title; a.href = it.url;
+        a.setAttribute("target","_blank"); a.setAttribute("rel","noopener noreferrer");
+        h3.appendChild(a); card.appendChild(h3);
+        card.appendChild(el("p", null, it.summary || "暂无摘要"));
+        const foot = el("div","foot"); const la = el("a");
+        la.textContent = "阅读原文"; la.href = it.url;
+        la.setAttribute("target","_blank"); la.setAttribute("rel","noopener noreferrer");
+        const arr = document.createElementNS("http://www.w3.org/2000/svg","svg");
+        arr.setAttribute("viewBox","0 0 24 24"); arr.setAttribute("width","13"); arr.setAttribute("height","13");
+        arr.setAttribute("fill","none"); arr.setAttribute("stroke","currentColor"); arr.setAttribute("stroke-width","2.2");
+        arr.setAttribute("stroke-linecap","round"); arr.setAttribute("stroke-linejoin","round");
+        const l1 = document.createElementNS("http://www.w3.org/2000/svg","line"); l1.setAttribute("x1","4"); l1.setAttribute("y1","12"); l1.setAttribute("x2","19"); l1.setAttribute("y2","12");
+        const l2 = document.createElementNS("http://www.w3.org/2000/svg","polyline"); l2.setAttribute("points","13 6 19 12 13 18");
+        arr.appendChild(l1); arr.appendChild(l2);
+        la.appendChild(arr);
+        foot.appendChild(la); card.appendChild(foot);
+        grid.appendChild(card);
+      });
+      sec.appendChild(grid);
+    }
+    main.appendChild(sec); secEls.push(sec);
+  });
+
+  document.getElementById("f-total").textContent = "共 " + data.total + " 条 · 数据日期 " + data.dateIso;
+  const fs = document.getElementById("f-src");
+  fs.textContent = data.source + "（" + data.dateIso + "）"; fs.href = data.sourceUrl;
+
+  if(window.__obs) window.__obs.disconnect();
+  const obs = new IntersectionObserver(es => {
+    es.forEach(e => {
+      if(e.isIntersecting){
+        const id = e.target.id;
+        navLinks.forEach((a,i) => a.classList.toggle("active", data.sections[i].key === id.replace("sec-","")));
+      }
+    });
+  }, {rootMargin:"-45% 0px -50% 0px"});
+  secEls.forEach(s => obs.observe(s));
+  window.__obs = obs;
+}
+
+function skeletonCards(n){
+  const grid = el("div","grid");
+  for(let i = 0; i < n; i++){
+    const card = el("div","card");
+    const top = el("div","top");
+    top.appendChild(el("span","skel skel-badge",""));
+    top.appendChild(el("span","skel skel-chip",""));
+    card.appendChild(top);
+    ["w90","w80","w70"].forEach(c => card.appendChild(el("div","skel skel-line " + c,"")));
+    card.appendChild(el("div","skel skel-link",""));
+    grid.appendChild(card);
+  }
+  return grid;
+}
+
+function showMessage(title, sub, isError){
+  const main = document.getElementById("main");
+  main.innerHTML = "";
+  const box = el("div", "status" + (isError ? " err" : ""));
+  box.appendChild(el("div", null, title));
+  if(sub) box.appendChild(el("div","sub", sub));
+  if(isError){
+    box.appendChild(el("div","sub",
+      "若以 file:// 直接打开被浏览器拦截，请用本地服务器打开：在该文件目录运行 python -m http.server 8000，再访问 http://localhost:8000/ai-daily.html"));
+  }
+  main.appendChild(box);
+}
+
+const DATES = [];                                   // 升序的真实日报日期
+const available = new Set();
+let selDate = null;
+let viewY = 0, viewM = 0;
+
+const dateTrigger = document.getElementById("date-trigger");
+const triggerDate = document.getElementById("trigger-date");
+const calPop      = document.getElementById("cal-pop");
+const calTitle    = document.getElementById("cal-title");
+const calGrid     = document.getElementById("cal-grid");
+const calPrev     = document.getElementById("cal-prev");
+const calNext     = document.getElementById("cal-next");
+const calLatest   = document.getElementById("cal-latest");
+
+function setSel(d){
+  selDate = d;
+  triggerDate.textContent = d ? formatDateText(d) : "选择日期";
+}
+
+async function loadByDate(dateStr){
+  if(!dateStr) return;
+  const main = document.getElementById("main");
+  main.innerHTML = ""; main.appendChild(skeletonCards(6));
+  try{
+    const res = await fetch(API + "/dailies/" + dateStr);
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const json = await res.json();
+    render(buildData(json.report));
+  }catch(err){
+    showMessage("无法加载实时数据", (err && err.message) ? err.message : String(err), true);
+  }
+}
+
+function renderCalendar(){
+  calTitle.textContent = viewY + "年" + (viewM + 1) + "月";
+  const startW = (new Date(Date.UTC(viewY, viewM, 1)).getUTCDay() + 6) % 7;   // 周一为一周首列
+  const days = new Date(Date.UTC(viewY, viewM + 1, 0)).getUTCDate();
+  calGrid.innerHTML = "";
+  for(let d = 1; d <= days; d++){
+    const ds = viewY + "-" + pad(viewM + 1) + "-" + pad(d);
+    if(!available.has(ds)) continue;        // 没有日报：不渲染任何元素，纯留白
+    const cell = el("button", "cal-cell on", String(d));
+    const idx = startW + d - 1;             // 用显式 grid 行列定位，避免任何占位元素
+    cell.style.gridColumnStart = (idx % 7) + 1;
+    cell.style.gridRowStart = Math.floor(idx / 7) + 1;
+    if(ds === selDate) cell.classList.add("sel");
+    cell.addEventListener("click", () => { setSel(ds); closeCal(); loadByDate(ds); });
+    calGrid.appendChild(cell);
+  }
+}
+function openCal(){
+  const r = dateTrigger.getBoundingClientRect();   // 按按钮实际位置定位，避免被 Hero 裁切
+  calPop.style.left = Math.max(8, Math.min(r.left, (window.innerWidth || 0) - 360)) + "px";
+  calPop.style.top = (r.bottom + 8) + "px";
+  const [y, m] = (selDate || "2026-08-01").split("-").map(Number);
+  viewY = y; viewM = m - 1;
+  renderCalendar();
+  calPop.hidden = false;
+}
+function closeCal(){ calPop.hidden = true; }
+function toggleCal(){ calPop.hidden ? openCal() : closeCal(); }
+
+dateTrigger.addEventListener("click", (e) => { e.stopPropagation(); toggleCal(); });
+calPop.addEventListener("click", (e) => e.stopPropagation());
+calPrev.addEventListener("click", (e) => { e.stopPropagation(); viewM--; if(viewM < 0){ viewM = 11; viewY--; } renderCalendar(); });
+calNext.addEventListener("click", (e) => { e.stopPropagation(); viewM++; if(viewM > 11){ viewM = 0; viewY++; } renderCalendar(); });
+calLatest.addEventListener("click", (e) => { e.stopPropagation(); if(DATES.length){ setSel(DATES[DATES.length - 1]); closeCal(); loadByDate(selDate); } });
+document.getElementById("refresh").addEventListener("click", () => loadByDate(selDate));
+document.addEventListener("click", () => { if(!calPop.hidden) closeCal(); });
+window.addEventListener("scroll", closeCal, true);   // 滚动时收起弹层（事件委托，非逐帧监听）
+window.addEventListener("resize", closeCal);
+
+(async () => {                                       // 先拉索引，拿到真实日报日期供日历高亮
+  try{
+    const res = await fetch(API + "/dailies?limit=90");
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const idx = await res.json();
+    const dates = (idx.items || []).map(it => it.date).filter(Boolean).sort();
+    DATES.length = 0; DATES.push(...dates);
+    dates.forEach(d => available.add(d));
+    setSel(dates[dates.length - 1] || null);         // 默认最新一期
+    if(selDate) await loadByDate(selDate);
+  }catch(err){
+    showMessage("无法加载日报索引", (err && err.message) ? err.message : String(err), true);
+  }
+})();
+</script>
+</body>
+</html>
