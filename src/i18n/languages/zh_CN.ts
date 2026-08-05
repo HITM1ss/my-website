@@ -48,8 +48,8 @@ export const zh_CN: Translation = {
 	[Key.announcementClose]: "关闭",
 
 	[Key.comments]: "评论",
-	[Key.commentSection]: "评论区",
-	[Key.commentSubtitle]: "评论由 {waline} 项目支持",
+	[Key.commentSection]: "留言区",
+	[Key.commentSubtitle]: "留言系统由[waline]支持，请耐心等待加载",
 	[Key.commentNotConfigured]: "评论系统暂未配置",
 	[Key.guestbookCommentHint]:
 		"您还未在配置文件中启用评论系统，启用后访客才可在此留言",
