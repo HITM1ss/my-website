@@ -2,7 +2,7 @@
 title: vibecoding的格式转换软件
 published: 2026-07-27
 description: AI帮我制作的第一款软件
-image: ./cover.jpg
+image: images/format-converter-cover.avif
 tags: [全栈, 开发]
 category: 软件开发
 draft: false
