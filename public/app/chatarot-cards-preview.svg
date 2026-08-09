@@ -1,0 +1,31 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#08090C"/>
+  <circle cx="154" cy="102" r="315" fill="#6F5938" fill-opacity="0.28"/>
+  <circle cx="1056" cy="730" r="350" fill="#743E38" fill-opacity="0.2"/>
+  <rect x="55" y="46" width="1090" height="708" rx="22" fill="#111318" stroke="#262A33"/>
+  <text x="104" y="137" fill="#C2A978" font-family="Georgia, serif" font-size="25" letter-spacing="8">TAROTREALM</text>
+  <text x="104" y="202" fill="#ECE9E1" font-family="Georgia, serif" font-size="54">塔罗牌图鉴</text>
+  <text x="105" y="244" fill="#9A9CA3" font-family="sans-serif" font-size="22">78 张牌，窥见牌面之下的语言</text>
+  <g transform="translate(159 314)">
+    <rect width="222" height="342" rx="16" fill="#101218" stroke="#C2A978" stroke-width="2"/>
+    <rect x="15" y="15" width="192" height="312" rx="10" stroke="#6E6045"/>
+    <circle cx="111" cy="172" r="66" fill="#C2A978" fill-opacity="0.12" stroke="#C2A978"/>
+    <path d="M111 83L124 137L177 150L124 163L111 217L98 163L45 150L98 137L111 83Z" fill="#C2A978"/>
+    <text x="111" y="275" text-anchor="middle" fill="#ECE9E1" font-family="Georgia, serif" font-size="22">THE FOOL</text>
+  </g>
+  <g transform="translate(488 314)">
+    <rect width="222" height="342" rx="16" fill="#15171D" stroke="#3E414A" stroke-width="2"/>
+    <rect x="15" y="15" width="192" height="312" rx="10" stroke="#6E6045"/>
+    <path d="M111 78C71 119 57 165 111 246C165 165 151 119 111 78Z" fill="#B58D60" fill-opacity="0.55"/>
+    <circle cx="111" cy="153" r="38" fill="#C2A978" fill-opacity="0.3"/>
+    <text x="111" y="275" text-anchor="middle" fill="#ECE9E1" font-family="Georgia, serif" font-size="22">THE STAR</text>
+  </g>
+  <g transform="translate(817 314)">
+    <rect width="222" height="342" rx="16" fill="#101218" stroke="#C2A978" stroke-width="2"/>
+    <rect x="15" y="15" width="192" height="312" rx="10" stroke="#6E6045"/>
+    <circle cx="111" cy="153" r="62" fill="#C2A978" fill-opacity="0.14"/>
+    <path d="M111 85C153 85 179 122 173 159C167 194 142 222 111 238C80 222 55 194 49 159C43 122 69 85 111 85Z" fill="#C2A978" fill-opacity="0.7"/>
+    <text x="111" y="275" text-anchor="middle" fill="#ECE9E1" font-family="Georgia, serif" font-size="22">THE MOON</text>
+  </g>
+  <text x="600" y="718" text-anchor="middle" fill="#9A9CA3" font-family="sans-serif" font-size="16" letter-spacing="5">MAJOR ARCANA · WANDS · CUPS · SWORDS · PENTACLES</text>
+</svg>
