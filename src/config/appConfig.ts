@@ -19,4 +19,13 @@ export const appConfig: AppConfig = [
     tags: ["看板", "任务", "交互"],
     enabled: true,
   },
+  {
+    name: "塔罗牌图鉴",
+    description: "浏览 78 张塔罗牌的正逆位含义、意象与牌阵指引。",
+    url: "/app/chatarot-cards.html",
+    icon: "material-symbols:auto-stories",
+    image: "/app/chatarot-cards-preview.svg",
+    tags: ["塔罗", "图鉴", "互动"],
+    enabled: true,
+  },
 ];
