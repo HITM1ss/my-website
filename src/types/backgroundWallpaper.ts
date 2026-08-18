@@ -19,6 +19,11 @@ export type BackgroundWallpaperConfig = {
 			switchable?: boolean; // 是否允许用户通过控制面板切换横幅标题显示
 			title?: string; // 主标题
 			subtitle?: string | string[]; // 副标题，支持单个字符串或字符串数组
+			neteaseComment?: {
+				enable: boolean; // 是否使用网易云热评作为副标题（API 密钥通过环境变量配置）
+				cacheHours?: number; // 浏览器缓存时长（小时），默认 24
+				maxLength?: number; // 热评最大显示字符数，默认 88，超出部分以省略号截断
+			};
 			titleSize?: string; // 主标题字体大小，如 "3.5rem"
 			subtitleSize?: string; // 副标题字体大小，如 "1.5rem"
 			typewriter?: {
