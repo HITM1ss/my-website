@@ -11,6 +11,7 @@ import ImageWrapper from "@/components/common/ImageWrapper.astro";
 import FloatingControls from "@/components/controls/FloatingControls.astro";
 import ScrollDownIndicator from "@/components/controls/ScrollDownIndicator.astro";
 import BackgroundPlayer from "@/components/features/BackgroundPlayer.astro";
+import NeteaseCommentSubtitle from "@/components/features/NeteaseCommentSubtitle.astro";
 import TypewriterText from "@/components/features/TypewriterText.astro";
 import CategoryBar from "@/components/layout/CategoryBar.astro";
 import {
@@ -128,6 +129,10 @@ const getRandomSubtitle = () => {
 	return subtitle;
 };
 const randomSubtitle = getRandomSubtitle();
+const neteaseCommentConfig =
+	backgroundWallpaper.common?.homeText?.neteaseComment;
+const useNeteaseComment = neteaseCommentConfig?.enable === true;
+const neteaseCommentApiUrl = `${import.meta.env.BASE_URL}api/netease-comment.json`;
 
 // 主页横幅文本只在首页且全局开关为 true 时显示，不区分设备
 const homeTextEnable = backgroundWallpaper.common?.homeText?.enable;
@@ -621,8 +626,16 @@ const hasMultipleImages =
                         </div>
                     )}
                     {backgroundWallpaper.common?.homeText?.subtitle && (
-                        <div id="banner-subtitle" class="banner-subtitle text-white/90 leading-snug" style={{ fontSize: backgroundWallpaper.common.homeText.subtitleSize || "1.5rem" }} data-subtitles={JSON.stringify(backgroundWallpaper.common.homeText.subtitle)}>
-                            {backgroundWallpaper.common.homeText.typewriter?.enable ? (
+                        <div id="banner-subtitle" class="banner-subtitle text-white/90 leading-snug" style={{ fontSize: backgroundWallpaper.common.homeText.subtitleSize || "1.5rem" }} data-subtitles={JSON.stringify(backgroundWallpaper.common.homeText.subtitle)} data-dynamic-subtitle={useNeteaseComment ? "true" : undefined}>
+                            {useNeteaseComment ? (
+                                <NeteaseCommentSubtitle
+                                    fallback={randomSubtitle || ""}
+                                    endpoint={neteaseCommentApiUrl}
+                                    cacheHours={neteaseCommentConfig?.cacheHours}
+                                    maxLength={neteaseCommentConfig?.maxLength}
+                                    typewriter={backgroundWallpaper.common.homeText.typewriter}
+                                />
+                            ) : backgroundWallpaper.common.homeText.typewriter?.enable ? (
                                 <TypewriterText
                                     text={backgroundWallpaper.common.homeText.subtitle}
                                     speed={backgroundWallpaper.common.homeText.typewriter.speed}
@@ -643,6 +656,7 @@ const hasMultipleImages =
         function setRandomSubtitle() {
             const subtitleElement = document.getElementById('banner-subtitle');
             if (!subtitleElement) return;
+            if (subtitleElement.dataset.dynamicSubtitle === "true") return;
 
             const subtitlesData = subtitleElement.dataset.subtitles;
             if (!subtitlesData) return;
@@ -917,4 +931,3 @@ const hasMultipleImages =
   }
 
 </style>
-
