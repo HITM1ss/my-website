@@ -42,7 +42,8 @@
 ### 3.1 Content Collections
 - `src/content.config.ts` 定义了三类集合：`posts`、`spec`、`dynamic`。
 - `posts` 集合使用 `glob` 读取 `src/content/posts/**`，并使用 Zod 校验 frontmatter，包括 `title`、`published`、`tags`、`category`、`draft`、`pinned`、`comment`、`password`、`prev/next` 等字段。
-- `spec` 和 `dynamic` 仅用于特殊页面与动态内容。
+- `spec` 用于特殊页面；`dynamic` 使用 `glob` 递归读取 `src/content/dynamic/**/*.{md,mdx}`，每个文件是一条动态，schema 只声明必填日期字段 `published`。
+- 动态文件和图片的存放、新增步骤及字段规则见[动态内容存放与发布规范](dynamic-content.md)。文件名不决定发布时间；当前没有动态草稿或未来日期隐藏规则。
 
 ### 3.2 文章数据处理
 - `src/utils/content-utils.ts`
@@ -91,6 +92,13 @@
 ### 4.4 其他页面
 - `src/pages/about.astro`, `archive.astro`, `friends.astro`, `guestbook.astro`, `bangumi.astro`, `anime.astro`, `gallery/*`, `search.astro`, `sponsor.astro` 等均基于 `MainGridLayout` 渲染。
 - `siteConfig.pages` 控制页面是否开启，同时 `Navbar.astro` 会过滤未启用页面链接。
+
+### 4.5 动态页
+
+- `src/pages/dynamic/index.astro` 读取 `dynamic` 集合，按 `published` 时间倒序排列，并用 `render(entry)` 渲染每条动态正文。
+- 所有动态展示在 `/dynamic/`，固定链接使用页面内锚点；作者名称和头像来自 `profileConfig`。文件名和子目录参与锚点生成，重命名或移动可能改变固定链接。
+- 年份筛选与分页在浏览器端执行，URL 使用 `year`、`page` 查询参数；`dynamicConfig.itemsPerPage` 控制每页数量，目前为 `10`。
+- `siteConfig.pages.dynamic` 控制页面开关；`location` 当前没有在 schema 声明，也不会显示在动态页。
 
 ## 5. 组件与 Widget 体系
 

@@ -4,7 +4,7 @@
 
 ## 项目概览
 
-Firefly 是一个功能丰富的静态博客主题，基于 **Astro 6** 构建，并使用 **Svelte 5** 开发交互式组件。它由 [Fuwari](https://github.com/saicaca/fuwari) 分叉而来，并扩展了大量功能。主要语言为简体中文，同时支持 en、zh_TW、ja、ru 的国际化。
+Firefly 是一个功能丰富的静态博客主题，基于 **Astro 7** 构建，并使用 **Svelte 5** 开发交互式组件。它由 [Fuwari](https://github.com/saicaca/fuwari) 分叉而来，并扩展了大量功能。主要语言为简体中文，同时支持 en、zh_TW、ja、ru 的国际化。
 
 ## 命令
 
@@ -61,6 +61,19 @@ Firefly 是一个功能丰富的静态博客主题，基于 **Astro 6** 构建�
 
 - `posts` — 博客文章（`.md`/`.mdx`），支持 title、published、tags、category、draft、pinned、password、comment 等 frontmatter 字段。
 - `spec` — 特殊页面（关于、留言板）。
+- `dynamic` — 随手记录与日常动态，递归读取 `src/content/dynamic/` 下的 `.md`/`.mdx`，仅要求 `published` 日期字段，不要求标题。
+
+### 动态内容
+
+完整规范和示例见 [动态内容写作与存放指南](docs/dynamic-content.md)。
+
+- 一条动态一个文件；现有 `26.8.31.md` 等日期式命名是整理约定，文件名不决定显示时间或排序。
+- `published` 应填写未加引号的 YAML 日期，建议显式带时区，如 `2026-10-10T18:30:00+08:00`。现有无时区写法按 UTC 解析；`siteConfig.timezone` 只控制显示转换。
+- 图片沿用 `src/content/dynamic/image_d/`，正文使用相对路径，如 `![图片说明](image_d/26.8.31.avif)`；子目录中的动态需调整相对路径。现有 AVIF 格式不是强制要求。
+- `src/pages/dynamic/index.astro` 在 `/dynamic/` 统一渲染正文，按 `published` 时间倒序展示，并提供年份筛选和客户端分页。
+- `src/config/dynamicConfig.ts` 的 `itemsPerPage` 当前为 10；`siteConfig.pages.dynamic` 控制页面开关，作者名称和头像来自 `profileConfig`。
+- `location` 目前未在 schema 中声明，也未在页面显示；动态没有实现 `draft`、置顶或未来日期隐藏逻辑。扩展字段和发布行为时需要同步修改集合 schema 与页面。
+- 文件标识用于生成页面内固定链接锚点，重命名或移动已发布文件可能改变链接。
 
 ### 关键目录
 

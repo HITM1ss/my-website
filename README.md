@@ -189,6 +189,7 @@ src/
 │   ├── backgroundWallpaper.ts    # 背景壁纸配置
 │   ├── commentConfig.ts          # 评论系统配置
 │   ├── coverImageConfig.ts       # 封面图配置
+│   ├── dynamicConfig.ts          # 动态分页配置
 │   ├── effectsConfig.ts          # 动画特效配置（樱花等）
 │   ├── expressiveCodeConfig.ts   # 代码高亮配置
 │   ├── fontConfig.ts             # 字体配置
@@ -207,6 +208,8 @@ src/
 
 ## ⚙️ 文章 Frontmatter
 
+以下示例适用于 `src/content/posts/` 中的博客文章。动态使用独立的内容集合，字段要求见下方说明。
+
 ```yaml
 ---
 title: My First Blog Post
@@ -221,6 +224,18 @@ pinned: false    # 置顶
 comment: true    # 是否允许评论
 ---
 ```
+
+## 💬 动态写作与存放
+
+动态存放在 `src/content/dynamic/`，一条动态一个 `.md` 或 `.mdx` 文件，也支持子目录。文件开头只需填写 `published` 日期字段，之后写 Markdown 正文，不需要标题。
+
+- 新写动态建议使用 `published: 2026-10-10T18:30:00+08:00`，不要加引号；已有不带时区的时间会按 UTC 解析，再按站点的上海时区显示。
+- 现有文件名如 `26.8.31.md`，日期式命名是整理约定；页面按 `published` 时间倒序展示，不从文件名读取日期。
+- 图片推荐放在 `src/content/dynamic/image_d/`，正文使用相对路径引用，如 `![图片说明](image_d/26.8.31.avif)`。AVIF 是现有图片格式，并非强制要求。
+- 页面地址为 `/dynamic/`，支持年份筛选；每页数量在 `src/config/dynamicConfig.ts` 中设置，当前为 10 条。页面开关为 `siteConfig.pages.dynamic`。
+- 当前 `location` 字段不会显示，动态也没有草稿或按未来日期定时发布的功能。
+
+完整的文件示例、图片路径、日期填写和新增步骤见 [动态内容写作与存放指南](docs/dynamic-content.md)。
 
 ## 🧩 Markdown 扩展语法
 

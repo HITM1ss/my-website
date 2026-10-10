@@ -13,6 +13,7 @@ src/config/
 ├── backgroundWallpaper.ts    # 背景壁纸配置
 ├── commentConfig.ts          # 评论系统配置
 ├── coverImageConfig.ts       # 封面图配置
+├── dynamicConfig.ts          # 动态页面配置（每页数量）
 ├── effectsConfig.ts          # 动画特效配置（樱花等）
 ├── expressiveCodeConfig.ts   # 代码高亮配置
 ├── fontConfig.ts             # 字体配置
@@ -53,6 +54,7 @@ import { profileConfig } from "@/config/profileConfig";
 | `backgroundWallpaper.ts` | 背景壁纸配置（壁纸模式、图片、横幅文字、水波纹等） |
 | `commentConfig.ts` | 评论系统配置（Twikoo、Waline、Artalk、Giscus、Disqus） |
 | `coverImageConfig.ts` | 封面图配置（文章封面图、随机封面图 API） |
+| `dynamicConfig.ts` | 动态页面配置（`itemsPerPage` 控制每页数量，当前为 10） |
 | `effectsConfig.ts` | 动画特效配置（樱花数量、速度、尺寸等） |
 | `expressiveCodeConfig.ts` | 代码高亮配置（亮色/暗色主题、折叠、语言徽章） |
 | `fontConfig.ts` | 字体配置（字体列表、回退、预加载） |
@@ -71,6 +73,7 @@ import { profileConfig } from "@/config/profileConfig";
 ## 📝 说明
 
 - 所有配置文件均可通过 `index.ts` 统一导入
-- 每个配置文件对应 `types/` 目录下的独立类型定义文件
+- 配置类型定义位于 `src/types/`；`dynamicConfig.ts` 的简单配置直接在文件中定义
 - `siteConfig.ts` 只保留站点核心信息，不聚合其他模块配置
 - `navBarConfig.ts` 底部的 `LinkPresets` 可自由自定义导航栏链接的名称、图标和 URL
+- 动态页面由 `siteConfig.pages.dynamic` 控制启用，作者名称和头像使用 `profileConfig`；动态内容文件、图片和字段规则见[动态内容存放与发布规范](../../docs/dynamic-content.md)
