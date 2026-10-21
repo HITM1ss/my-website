@@ -22,6 +22,9 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		url: "#",
 		icon: "material-symbols:article",
 		children: [
+			// 日志列表
+			LinkPresets.Blog,
+
 			// 归档
 			LinkPresets.Archive,
 
@@ -38,16 +41,15 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 
 	// 我的及其子菜单
 	links.push(
-		
-			// 追番
-			LinkPresets.Anime
+		// 追番
+		LinkPresets.Anime,
 
-			// // 番组计划
-			// LinkPresets.Bangumi,
-		);
+		// // 番组计划
+		// LinkPresets.Bangumi,
+	);
 	// 摄影菜单
 	links.push(LinkPresets.Gallery);
-	
+
 	// 留言板
 	links.push(LinkPresets.Guestbook);
 
@@ -134,6 +136,11 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		name: "主页",
 		url: "/",
 		icon: "material-symbols:home",
+	},
+	Blog: {
+		name: "日志",
+		url: "/blog/",
+		icon: "material-symbols:article",
 	},
 	Archive: {
 		name: "归档",

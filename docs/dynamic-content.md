@@ -63,10 +63,11 @@ published: 2026-10-10T18:30:00+08:00
 
 ## 页面显示与配置
 
-- 动态统一显示在 `/dynamic/`，按 `published` 的时间倒序排列；日期显示也使用该字段。
-- 页面提供年份筛选和浏览器端分页，URL 使用 `year`、`page` 查询参数，例如 `/dynamic/?year=2026&page=2`。
+- 首页 `/` 默认显示动态，原 `/dynamic/` 入口继续保留，两处共用 `src/components/pages/dynamic/DynamicFeed.astro`，按 `published` 的时间倒序排列；日期显示也使用该字段。
+- 日志列表位于 `/blog/`，分页使用 `/blog/2/` 等地址，导航栏“文章”菜单中的“日志”进入此列表。文章正文仍使用 `/posts/.../`。旧日志分页地址如 `/2/` 会跳转到对应的新地址。
+- 首页和原动态页都提供年份筛选和浏览器端分页，URL 使用 `year`、`page` 查询参数，例如 `/?year=2026&page=2` 或 `/dynamic/?year=2026&page=2`。
 - `src/config/dynamicConfig.ts` 的 `itemsPerPage` 控制每页数量，目前是 `10`。
-- `src/config/siteConfig.ts` 的 `pages.dynamic` 控制页面是否启用，目前是 `true`；关闭时页面重定向到 `/404/`。
+- `src/config/siteConfig.ts` 的 `pages.dynamic` 控制动态是否启用，目前是 `true`；关闭时首页跳转到 `/blog/`，原动态页跳转到 `/404/`。
 - 每条动态的作者名称和头像统一读取 `src/config/profileConfig.ts` 的 `name`、`avatar`，不是动态文件中的独立字段。
 - 每条动态的固定链接是动态页内的锚点，例如 `26.8.31.md` 当前对应 `/dynamic/#dynamic-26831`，没有单独的动态详情页。锚点由 Astro 生成的文件标识转换而来，分享时以页面的固定链接按钮为准。
 
@@ -86,7 +87,8 @@ published: 2026-10-10T18:30:00+08:00
 | 规则 | 源码 |
 | --- | --- |
 | 动态加载目录、扩展名、递归读取及 `published` 校验 | [`src/content.config.ts`](../src/content.config.ts) 中的 `dynamicCollection` |
-| 动态读取、时间排序、作者资料、锚点、年份筛选和分页 | [`src/pages/dynamic/index.astro`](../src/pages/dynamic/index.astro) |
+| 动态读取、时间排序、作者资料、锚点、年份筛选和分页 | [`src/components/pages/dynamic/DynamicFeed.astro`](../src/components/pages/dynamic/DynamicFeed.astro) |
+| 首页和原动态页入口 | [`src/pages/index.astro`](../src/pages/index.astro)、[`src/pages/dynamic/index.astro`](../src/pages/dynamic/index.astro) |
 | 每页数量 | [`src/config/dynamicConfig.ts`](../src/config/dynamicConfig.ts) |
 | 动态页面开关与站点日期显示设置 | [`src/config/siteConfig.ts`](../src/config/siteConfig.ts) |
 | 作者名称和头像 | [`src/config/profileConfig.ts`](../src/config/profileConfig.ts) |

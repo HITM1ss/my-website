@@ -1,0 +1,13 @@
+---
+import DynamicFeed from "@/components/pages/dynamic/DynamicFeed.astro";
+import { siteConfig } from "@/config";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+
+if (!siteConfig.pages.dynamic) {
+	return Astro.redirect("/blog/");
+}
+---
+
+<MainGridLayout>
+	<DynamicFeed />
+</MainGridLayout>
