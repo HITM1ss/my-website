@@ -10,6 +10,7 @@ import {
 	getSortedPosts,
 	getTagList,
 } from "@/utils/content-utils";
+import { getLastCommitDate } from "@/utils/git-info";
 
 interface Props {
 	class?: string;
@@ -53,20 +54,8 @@ function formatNumber(num: number): string {
 	return num.toLocaleString();
 }
 
-// 获取「最后活动」时间：取每篇文章 published 与 updated 中较新的那个，再从全站所有文章里取最大值。这样新发文章和修改老文章都会刷新该字段。
-const getActivityDate = (post: (typeof posts)[number]): Date => {
-	const { published, updated } = post.data;
-	if (updated && updated > published) return updated;
-	return published;
-};
-
-const lastActivityDate = posts.reduce<Date | null>((latest, post) => {
-	const current = getActivityDate(post);
-	if (!latest || current > latest) return current;
-	return latest;
-}, null);
-
-const lastPostDate = lastActivityDate ? lastActivityDate.toISOString() : null;
+// 当前构建版本的仓库提交时间。
+const lastActivityDate = getLastCommitDate();
 
 const todayText = i18n(I18nKey.today);
 
@@ -128,10 +117,10 @@ const stats = [
             class="text-base font-bold text-neutral-900 dark:text-neutral-100"
             data-stat-id={stat.id}
           >
-            {stat.formatted ? formatNumber(stat.value) : stat.value}
+            {stat.id === "last-update" ? "—" : stat.formatted ? formatNumber(stat.value) : stat.value}
           </span>
           {stat.suffix && (
-            <span class="text-sm text-neutral-500 dark:text-neutral-400 ml-1">
+            <span class="text-sm text-neutral-500 dark:text-neutral-400 ml-1" style={stat.id === "last-update" ? "display: none" : undefined}>
               {stat.suffix}
             </span>
           )}
@@ -141,7 +130,7 @@ const stats = [
   </div>
 </WidgetLayout>
 
-<script is:inline define:vars={{ siteStartDate, lastPostDate, todayText }}>
+<script is:inline define:vars={{ siteStartDate, lastActivityDate, todayText }}>
   function updateDynamicStats() {
     const today = new Date();
 
@@ -155,27 +144,23 @@ const stats = [
       element.textContent = diffDays.toString();
     });
 
-    // 更新最后活动时间
-    if (lastPostDate) {
-      const lastPost = new Date(lastPostDate);
-      const timeSinceLastPost = Math.abs(today.getTime() - lastPost.getTime());
-      const daysSinceLastUpdate = Math.floor(timeSinceLastPost / (1000 * 60 * 60 * 24));
+    // 用北京时间自然日计算天数，不受访问者所在地时区影响。
+    const toBeijingDay = (date) =>
+      Math.floor((date.getTime() + 8 * 60 * 60 * 1000) / (24 * 60 * 60 * 1000));
+    const daysSinceLastUpdate = lastActivityDate
+      ? Math.max(0, toBeijingDay(today) - toBeijingDay(new Date(lastActivityDate)))
+      : null;
 
-      const lastUpdateElements = document.querySelectorAll('[data-stat-id="last-update"]');
-      lastUpdateElements.forEach((element) => {
-        if (daysSinceLastUpdate === 0) {
-          element.textContent = todayText;
-          if (element.nextElementSibling) {
-            element.nextElementSibling.style.display = 'none';
-          }
-        } else {
-          element.textContent = daysSinceLastUpdate.toString();
-          if (element.nextElementSibling) {
-            element.nextElementSibling.style.display = '';
-          }
-        }
-      });
-    }
+    const lastUpdateElements = document.querySelectorAll('[data-stat-id="last-update"]');
+    lastUpdateElements.forEach((element) => {
+      element.textContent = daysSinceLastUpdate === null
+        ? '—'
+        : daysSinceLastUpdate === 0 ? todayText : daysSinceLastUpdate.toString();
+      if (element.nextElementSibling) {
+        element.nextElementSibling.style.display = daysSinceLastUpdate !== null && daysSinceLastUpdate > 0
+          ? '' : 'none';
+      }
+    });
   }
 
   // 页面加载时更新
