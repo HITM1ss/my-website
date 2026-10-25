@@ -1,7 +1,7 @@
 ---
-import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import { Icon } from "astro-icon/components";
 import { appConfig } from "@/config";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
 
 const title = "应用";
 const description = "这里展示当前可用的应用，点击卡片即可打开。";
@@ -23,7 +23,11 @@ const apps = appConfig.filter((app) => app.enabled !== false);
             <img
               src={app.image}
               alt={app.name}
-              class="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              width="960"
+              height="540"
+              loading="lazy"
+              decoding="async"
+              class="aspect-video h-auto w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           </div>
         )}
