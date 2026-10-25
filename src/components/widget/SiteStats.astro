@@ -5,11 +5,6 @@ import { siteConfig } from "@/config";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import type { WidgetComponentConfig } from "@/types/config";
-import {
-	getCategoryList,
-	getSortedPosts,
-	getTagList,
-} from "@/utils/content-utils";
 import { getLastCommitDate } from "@/utils/git-info";
 
 interface Props {
@@ -25,62 +20,12 @@ const showTitle = widgetConfig?.showTitle !== false;
 // 从配置中获取站点开始日期
 const siteStartDate = siteConfig.siteStartDate || "2025-01-01";
 
-// 获取所有文章
-const posts = await getSortedPosts();
-const categories = await getCategoryList();
-const tags = await getTagList();
-
-// 计算总字数
-let totalWords = 0;
-for (const post of posts) {
-	if (post.body) {
-		// 移除代码块和内联代码后计算字数
-		let text = post.body
-			.replace(/```[\s\S]*?```/g, "") // 移除代码块
-			.replace(/`[^`]*`/g, "") // 移除内联代码
-			.replace(/\s+/g, " ") // 合并空白
-			.trim();
-
-		// 分别计算中文字符和英文字符
-		const chineseChars = text.match(/[\u4e00-\u9fa5]/g) || [];
-		const englishChars = text.match(/[a-zA-Z]/g) || [];
-
-		totalWords += chineseChars.length + englishChars.length;
-	}
-}
-
-// 格式化数字（添加千位分隔符）
-function formatNumber(num: number): string {
-	return num.toLocaleString();
-}
-
 // 当前构建版本的仓库提交时间。
 const lastActivityDate = getLastCommitDate();
 
 const todayText = i18n(I18nKey.today);
 
 const stats = [
-	{
-		icon: "material-symbols:article-outline",
-		label: i18n(I18nKey.siteStatsPostCount),
-		value: posts.length,
-	},
-	{
-		icon: "material-symbols:folder-outline",
-		label: i18n(I18nKey.siteStatsCategoryCount),
-		value: categories.length,
-	},
-	{
-		icon: "material-symbols:label-outline",
-		label: i18n(I18nKey.siteStatsTagCount),
-		value: tags.length,
-	},
-	{
-		icon: "material-symbols:text-ad-outline-rounded",
-		label: i18n(I18nKey.siteStatsTotalWords),
-		value: totalWords,
-		formatted: true,
-	},
 	{
 		icon: "material-symbols:calendar-clock-outline",
 		label: i18n(I18nKey.siteStatsRunningDays),
@@ -117,7 +62,7 @@ const stats = [
             class="text-base font-bold text-neutral-900 dark:text-neutral-100"
             data-stat-id={stat.id}
           >
-            {stat.id === "last-update" ? "—" : stat.formatted ? formatNumber(stat.value) : stat.value}
+            {stat.id === "last-update" ? "—" : stat.value}
           </span>
           {stat.suffix && (
             <span class="text-sm text-neutral-500 dark:text-neutral-400 ml-1" style={stat.id === "last-update" ? "display: none" : undefined}>

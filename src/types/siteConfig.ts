@@ -70,7 +70,7 @@ export type SiteConfig = {
 			value: string; // icon名、本地图片路径或网络图片url
 			alt?: string; // 图片alt文本
 		};
-		title?: string; // 导航栏标题，如果不设置则使用 title
+		title?: string; // 导航栏标题，空字符串隐藏，不设置则使用站点 title
 		widthFull?: boolean; // 导航栏是否占满屏幕宽度
 		menuAlign?: "left" | "center"; // 导航菜单对齐方式（仅桌面端菜单）
 		followTheme?: boolean; // 导航栏图标和标题是否跟随主题色

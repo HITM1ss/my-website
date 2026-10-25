@@ -77,8 +77,8 @@ export const siteConfig: SiteConfig = {
 			value: "assets/images/m1sslogo.png",
 			alt: "M1ss Logo",
 		},
-		// 导航栏标题
-		title: "Just 4U",
+		// 导航栏标题，空字符串仅显示 Logo
+		title: "",
 		// 全宽导航栏，导航栏是否占满屏幕宽度
 		widthFull: false,
 		// 导航菜单对齐方式，left：左对齐，center：居中
