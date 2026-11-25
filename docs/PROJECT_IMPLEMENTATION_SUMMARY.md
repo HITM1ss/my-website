@@ -5,7 +5,7 @@
 - 基于 Astro 的静态博客主题，使用 Astro 渲染页面、组件与内容。
 - 采用 Astro + Svelte 混合架构：静态布局与页面使用 `.astro`，交互组件、设置面板、搜索、音乐播放器等使用 `client:load` 或 `client:visible` 的 Svelte 组件。
 - 功能强烈配置驱动，绝大部分业务逻辑通过 `src/config/` 内的配置文件打开、关闭、调整。
-- 内容由 Astro Content Layer 管理，定义了 `posts`、`spec`、`dynamic` 三类集合。
+- 内容由 Astro Content Layer 管理，定义了 `posts`、`spec`、`dynamic` 和 `scenes` 集合。高斯场景由 `public/scenes/*/scene.json` 注册，展示于 `/3dgs/`。 [高斯泼溅场景发布流程](3dgs-scenes.md)
 - 静态构建流程包含图标生成、LQIP 生成、Astro build、Pagefind 索引。
 
 ## 2. 配置系统

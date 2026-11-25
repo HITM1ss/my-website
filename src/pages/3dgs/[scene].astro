@@ -32,8 +32,7 @@ settings.cameras = [{ initial: data.camera }];
 	<body>
 		<header>
 			<nav aria-label="场景导航">
-				<a href="/app/">场景目录</a>
-				<span aria-hidden="true">/</span>
+				<a class="home-button" href="/" data-no-swup>返回主页</a>
 				<h1>{data.title}</h1>
 			</nav>
 			<p class="pointer-hint">拖动旋转 · 滚轮缩放</p>
@@ -98,9 +97,22 @@ settings.cameras = [{ initial: data.camera }];
 	body { margin: 0; height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto minmax(0, 1fr); background: #191919; color: #fafafa; font-family: system-ui, sans-serif; }
 	header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .25rem 1.25rem; padding: .6rem max(1rem, env(safe-area-inset-right)) .6rem max(1rem, env(safe-area-inset-left)); border-bottom: 1px solid #393939; }
 	nav { display: flex; align-items: center; gap: .8rem; min-height: 2.5rem; }
-	nav a { display: inline-flex; align-items: center; min-height: 2.75rem; color: #e3d4bd; text-decoration: none; }
-	nav a:hover, nav a:focus-visible { text-decoration: underline; }
-	nav span { color: #817973; }
+	.home-button {
+		display: inline-flex;
+		align-items: center;
+		min-height: 2.75rem;
+		padding: 0 .85rem;
+		border: 1px solid #696158;
+		border-radius: .5rem;
+		background: #302920;
+		color: #f3e6d2;
+		font-size: .875rem;
+		font-weight: 650;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+	.home-button:hover { background: #493b2c; }
+	.home-button:focus-visible { outline: 2px solid #f3e6d2; outline-offset: 3px; }
 	h1 { margin: 0; font-size: 1.125rem; font-weight: 650; }
 	header p { margin: 0; color: #bfbcb8; font-size: .875rem; }
 	.touch-hint { display: none; }

@@ -56,7 +56,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 	// 高斯泼溅场景
 	links.push({
 		name: "高斯场景",
-		url: "/app/",
+		url: "/3dgs/",
 		icon: "material-symbols:3d-rotation",
 	});
 

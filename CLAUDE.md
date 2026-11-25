@@ -37,18 +37,11 @@ Firefly 是一个功能丰富的静态博客主题，基于 **Astro 7** 构建�
 - `sidebarConfig.ts` — 侧边栏布局（左侧、右侧、双侧及小部件排序）。
 - `commentConfig.ts`、`analyticsConfig.ts`、`fontConfig.ts` 等。
 
-### HTML 应用接入
+### 高斯泼溅场景
 
-静态 HTML 应用采用“静态文件 + 集中配置”的接入方式：
-
-- `src/pages/app/index.astro` 是应用首页，使用 `MainGridLayout` 展示已注册的应用卡片。
-- `src/config/appConfig.ts` 集中维护 `appConfig` 数组；类型 `AppItem` 和 `AppConfig` 定义在 `src/types/appConfig.ts`。
-- 每个应用支持 `name`、`description`、`url`、`icon`、`image`、`tags`、`enabled` 字段；新增应用必须填写 `image`，`enabled` 省略时默认展示。
-- 应用文件及其静态资源存放于 `public/app/`：单页应用可使用 `public/app/<name>.html`，多页应用可使用 `public/app/<name>/index.html`，并分别注册为 `/app/<name>.html` 或 `/app/<name>/`。
-- 预览图也应放在 `public/app/`，推荐使用反映核心界面的 `1200 × 800` SVG 或 WebP。
-- `src/config/navBarConfig.ts` 中的“应用”入口必须保持指向 `/app/`，而非某个具体应用页面。
-
-新增应用时：添加应用和预览图（及所需资源）→ 在 `appConfig` 中注册并启用 → 运行 `pnpm dev`，访问 `/app/` 验证卡片预览与新标签页跳转正常 → 同步更新 `docs/app-integration.md`。
+- 导航入口「高斯场景」指向 `/3dgs/`。目录由 `src/pages/3dgs/index.astro` 渲染，`src/pages/3dgs/[scene].astro` 生成每个场景的交互式详情页。
+- 在 `public/scenes/<场景名>/` 放入 SOG 模型、`cover.webp` 和 `scene.json`。目录自动发现新场景，模型在打开详情页时加载。
+- 按 [高斯泼溅场景发布流程](docs/3dgs-scenes.md) 完成模型转换、取景、预览和发布。
 
 ### 布局系统
 
@@ -62,6 +55,7 @@ Firefly 是一个功能丰富的静态博客主题，基于 **Astro 7** 构建�
 - `posts` — 博客文章（`.md`/`.mdx`），支持 title、published、tags、category、draft、pinned、password、comment 等 frontmatter 字段。
 - `spec` — 特殊页面（关于、留言板）。
 - `dynamic` — 随手记录与日常动态，递归读取 `src/content/dynamic/` 下的 `.md`/`.mdx`，仅要求 `published` 日期字段，不要求标题。
+- `scenes` — 高斯泼溅场景，读取 `public/scenes/*/scene.json` 并以文件夹名生成详情页。
 
 ### 动态内容
 

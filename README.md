@@ -237,6 +237,10 @@ comment: true    # 是否允许评论
 
 完整的文件示例、图片路径、日期填写和新增步骤见 [动态内容写作与存放指南](docs/dynamic-content.md)。
 
+## 高斯泼溅场景
+
+从导航的「高斯场景」进入 `/3dgs/`。新增场景时，在 `public/scenes/` 下创建独立目录，放入压缩模型、封面和场景配置。 [高斯泼溅场景发布流程](docs/3dgs-scenes.md)
+
 ## 🧩 Markdown 扩展语法
 
 除了 Astro 默认支持的 [GitHub Flavored Markdown](https://github.github.com/gfm/) 之外，还包含了一些额外的 Markdown 功能：

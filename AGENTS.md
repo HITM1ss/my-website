@@ -4,7 +4,7 @@
 
 Firefly 是一款包含 Svelte 交互组件的 Astro 7 静态博客主题。基于文件的路由位于 `src/pages/`；共享的 Astro 与 Svelte UI 按用途组织在 `src/components/` 下（如 `layout/`、`widget/`、`controls/` 和 `pages/`）。可复用布局、工具函数、样式、i18n 文案和功能配置分别位于 `src/layouts/`、`src/utils/`、`src/styles/`、`src/i18n/` 和 `src/config/`。
 
-站点内容位于 `src/content/`：文章在 `posts/`，独立页面在 `spec/`，动态在 `dynamic/`。其 frontmatter 结构由 `src/content.config.ts` 定义。通用源码图片放入 `src/assets/`，动态图片沿用 `src/content/dynamic/image_d/` 的现有约定；需要直接提供给浏览器的文件、画廊媒体和应用资源放入 `public/`。图标与 LQIP 等构建辅助脚本位于 `scripts/`。
+站点内容位于 `src/content/`：文章在 `posts/`，独立页面在 `spec/`，动态在 `dynamic/`。其 frontmatter 结构由 `src/content.config.ts` 定义。通用源码图片放入 `src/assets/`，动态图片沿用 `src/content/dynamic/image_d/` 的现有约定；需要直接提供给浏览器的文件、画廊媒体和高斯场景资源放入 `public/`。图标与 LQIP 等构建辅助脚本位于 `scripts/`。
 
 ## 动态内容维护
 
@@ -17,6 +17,10 @@ Firefly 是一款包含 Svelte 交互组件的 Astro 7 静态博客主题。基�
 - `/dynamic/` 按 `published` 时间倒序展示，日期和排序不从文件名读取。每页数量由 `src/config/dynamicConfig.ts` 的 `itemsPerPage` 控制（当前为 10），页面开关为 `siteConfig.pages.dynamic`。
 - 现有 `location` 字段未在集合 schema 中声明，页面也不显示；动态没有实现 `draft`、置顶或未来日期隐藏逻辑。新增字段或发布控制时，需同步修改 schema 和页面逻辑。
 - 文件标识参与页面内固定链接锚点的生成，重命名或移动已发布动态可能改变链接。维护时注意已有引用。
+
+## 高斯泼溅场景维护
+
+完整步骤见 [高斯泼溅场景发布流程](docs/3dgs-scenes.md)。每个场景在 `public/scenes/<场景名>/` 下存放模型、`cover.webp` 和 `scene.json`。Astro 自动生成目录条目和 `/3dgs/<场景名>/` 详情页。新增或更新场景时，从主页导航验证封面、模型加载、触控和「返回主页」按钮。
 
 ## 构建、检查与开发命令
 

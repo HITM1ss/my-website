@@ -1,0 +1,10 @@
+{
+  "title": "宿舍一角",
+  "model": "scene.sog",
+  "gaussians": 568784,
+  "camera": {
+    "position": [-0.94, 0.58, -0.03],
+    "target": [0.10, 0.42, 0.22],
+    "fov": 70
+  }
+}
