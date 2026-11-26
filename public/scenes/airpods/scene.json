@@ -1,0 +1,10 @@
+{
+  "title": "AirPods",
+  "model": "scene.sog",
+  "gaussians": 1542821,
+  "camera": {
+    "position": [0.91, 0.29, 0.60],
+    "target": [0.697, 0.067, 0.384],
+    "fov": 52
+  }
+}
