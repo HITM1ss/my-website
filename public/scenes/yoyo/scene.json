@@ -1,0 +1,10 @@
+{
+  "title": "悠悠球",
+  "model": "scene.sog",
+  "gaussians": 690846,
+  "camera": {
+    "position": [0.095, 0.29, -0.39],
+    "target": [0.01, 0.09, -0.02],
+    "fov": 62
+  }
+}
